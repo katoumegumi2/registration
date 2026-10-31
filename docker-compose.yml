@@ -1,0 +1,81 @@
+name: pendaftaran
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [rustfs]
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    environment:
+      S3_BUCKET: ${S3_BUCKET}
+      NGINX_ENVSUBST_FILTER: "^S3_BUCKET$$"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+
+  api:
+    build: .
+    restart: unless-stopped
+    profiles: ["app"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rustfs:
+        condition: service_started
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      S3_ENDPOINT: http://rustfs:9000
+      SMTP_HOST: ${SMTP_HOST_DOCKER:-mailpit}
+      SMTP_PORT: ${SMTP_PORT_DOCKER:-1025}
+      LOCAL_STORAGE_DIR: /data/storage
+    volumes:
+      - local_files:/data/storage
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # Hanya localhost, tidak dibuka ke jaringan. Untuk migrate, seed, dan test dari host.
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  rustfs:
+    image: rustfs/rustfs:${RUSTFS_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+    # Hanya localhost: 59000 untuk init dan test dari host, 59001 console lewat SSH tunnel.
+    ports:
+      - "127.0.0.1:${RUSTFS_HOST_PORT:-59000}:9000"
+      - "127.0.0.1:${RUSTFS_CONSOLE_HOST_PORT:-59001}:9001"
+    volumes:
+      - rustfs_data:/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    profiles: ["dev"]
+    ports:
+      - "127.0.0.1:${MAILPIT_SMTP_HOST_PORT:-51025}:1025"
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
+volumes:
+  pg_data:
+  rustfs_data:
+  local_files:
