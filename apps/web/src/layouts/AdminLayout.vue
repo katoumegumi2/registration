@@ -28,7 +28,7 @@ const ACTIVE = "!bg-lime !text-ink font-medium";
 
 async function logout() {
   await auth.logoutStaff();
-  router.push("/admin/login");
+  router.push("/login");
 }
 </script>
 

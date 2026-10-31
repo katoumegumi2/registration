@@ -18,7 +18,8 @@ const routes: RouteRecordRaw[] = [
       { path: "me/registrations/:id/receipt", meta: { participant: true }, component: () => import("./features/registrations/ReceiptPage.vue") },
     ],
   },
-  { path: "/admin/login", component: () => import("./features/auth/StaffLoginPage.vue") },
+  // Alamat lama tetap berfungsi; login sekarang satu halaman.
+  { path: "/admin/login", redirect: (to) => ({ path: "/login", query: to.query }) },
   {
     path: "/admin",
     component: () => import("./layouts/AdminLayout.vue"),
@@ -49,7 +50,7 @@ router.beforeEach(async (to) => {
   if (to.meta.participant && !(await auth.loadParticipant())) return { path: "/login", query: { next: to.fullPath } };
   if (to.meta.staff) {
     const s = await auth.loadStaff();
-    if (!s) return { path: "/admin/login", query: { next: to.fullPath } };
+    if (!s) return { path: "/login", query: { next: to.fullPath } };
     if (to.meta.admin && s.role !== "ADMIN") return "/admin";
   }
 });

@@ -10,20 +10,28 @@ import { useAuth } from "@/composables/useAuth";
 const route = useRoute();
 const router = useRouter();
 const auth = useAuth();
-const form = reactive({ email: "", password: "" });
+const form = reactive({ identifier: "", password: "" });
 const error = ref("");
 const busy = ref(false);
+
+/** Hanya path internal yang sesuai jenis akun, supaya next tidak bisa mengarah ke tempat lain. */
+function destination(type: "STAFF" | "PARTICIPANT") {
+  const next = String(route.query.next ?? "");
+  const internal = next.startsWith("/") && !next.startsWith("//");
+  if (type === "STAFF") return internal && next.startsWith("/admin") ? next : "/admin";
+  return internal && !next.startsWith("/admin") ? next : "/me";
+}
 
 async function submit() {
   error.value = "";
   busy.value = true;
   try {
-    auth.setParticipant(await api.post("/auth/login", form));
-    const next = String(route.query.next ?? "/me");
-    // Hanya path internal, supaya parameter next tidak bisa mengarah ke situs lain.
-    router.push(next.startsWith("/") && !next.startsWith("//") ? next : "/me");
+    const r = await api.post("/auth/login", form);
+    if (r.type === "STAFF") auth.setStaff(r.user);
+    else auth.setParticipant(r.user);
+    router.push(destination(r.type));
   } catch (e) {
-    if (e instanceof ApiError && e.code === "EMAIL_NOT_VERIFIED") return void router.push({ path: "/verify", query: { email: form.email } });
+    if (e instanceof ApiError && e.code === "EMAIL_NOT_VERIFIED") return void router.push({ path: "/verify", query: { email: form.identifier } });
     error.value = errorMessage(e);
   } finally {
     busy.value = false;
@@ -35,7 +43,7 @@ async function submit() {
   <div class="mx-auto max-w-md">
     <Card title="Masuk">
       <form class="space-y-4" novalidate @submit.prevent="submit">
-        <TextInput v-model="form.email" label="Email" type="email" autocomplete="email" required />
+        <TextInput v-model="form.identifier" label="Email atau username" autocomplete="username" required />
         <TextInput v-model="form.password" label="Password" type="password" autocomplete="current-password" required />
         <p v-if="error" class="text-sm text-red-700" role="alert">{{ error }}</p>
         <Button type="submit" :loading="busy" class="w-full">Masuk</Button>

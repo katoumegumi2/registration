@@ -152,7 +152,7 @@ await step("6.2: event FCFS penuh, tombol daftar nonaktif, sisa kuota 0", async 
   const other = await browser.newContext({ baseURL: BASE });
   const q = await other.newPage();
   await q.goto("/login");
-  await q.getByLabel("Email").fill("pendaftar8@contoh.local");
+  await q.getByLabel("Email atau username").fill("pendaftar8@contoh.local");
   await q.getByLabel("Password").fill("Pendaftar123");
   await q.getByRole("button", { name: "Masuk" }).click();
   await q.waitForURL(/\/me$/);
@@ -169,12 +169,13 @@ const desk = await browser.newContext({ viewport: { width: 1366, height: 850 }, 
 const o = await desk.newPage();
 watch(o, "operator");
 
-await step("Login staff dengan username; operator tidak melihat menu admin", async () => {
+await step("Satu halaman login: /admin/login dialihkan, username masuk ke panel, operator tanpa menu admin", async () => {
   await o.goto("/admin/login");
-  await o.getByLabel("Username").fill("operator");
+  await o.waitForURL(/\/login/);
+  await o.getByLabel("Email atau username").fill("operator");
   await o.getByLabel("Password").fill("password-salah");
   await o.getByRole("button", { name: "Masuk" }).click();
-  await o.getByText("Username atau password salah").waitFor();
+  await o.getByText("Email/username atau password salah").waitFor();
   await o.getByLabel("Password").fill(ADMIN_PW);
   await o.getByRole("button", { name: "Masuk" }).click();
   await o.getByRole("heading", { name: "Dashboard" }).waitFor();
@@ -253,11 +254,12 @@ await step("6.2: kuota seleksi penuh, Terima terkunci, pendaftar dipindah ke Wai
     await o.getByRole("button", { name: "Valid", exact: true }).nth(i).click();
     await o.getByRole("button", { name: "Simpan" }).click();
     await o.getByRole("dialog").waitFor({ state: "detached" });
-    await o.getByRole("button", { name: "Waiting List" }).waitFor();
-    await o.waitForTimeout(300);
+    // Tunggu status dokumen benar-benar tercatat sebelum lanjut ke dokumen berikutnya.
+    await o.locator("span:has(> i.fa-check)").nth(i).waitFor();
   }
   const accept = o.getByRole("button", { name: "Terima" });
-  await o.getByText("Kuota penuh").waitFor();
+  const shown = await o.getByRole("heading", { name: "Ubah status" }).locator("..").innerText();
+  await o.getByText("Kuota penuh").waitFor({ timeout: 8000 }).catch((e) => { throw new Error(`Isi kartu status: ${shown.replace(/\s+/g, " ")} | ${e.message.split("\n")[0]}`); });
   if (!(await accept.isDisabled())) throw new Error("Terima seharusnya terkunci");
   await o.screenshot({ path: OUT + "07-kuota-penuh.png" });
   await o.getByRole("button", { name: "Waiting List" }).click();
@@ -280,8 +282,8 @@ const adminCtx = await browser.newContext({ viewport: { width: 1366, height: 850
 const a = await adminCtx.newPage();
 watch(a, "admin");
 await step("EV-01, EV-03: admin membuat event dengan syarat Surat Persetujuan Desa", async () => {
-  await a.goto("/admin/login");
-  await a.getByLabel("Username").fill("admin");
+  await a.goto("/login");
+  await a.getByLabel("Email atau username").fill("admin");
   await a.getByLabel("Password").fill(ADMIN_PW);
   await a.getByRole("button", { name: "Masuk" }).click();
   await a.getByRole("heading", { name: "Dashboard" }).waitFor();
@@ -386,7 +388,7 @@ await step("Hak akses di browser: akun pendaftar lain tidak bisa membuka pendaft
   const other = await browser.newContext({ baseURL: BASE });
   const q = await other.newPage();
   await q.goto("/login");
-  await q.getByLabel("Email").fill("pendaftar9@contoh.local");
+  await q.getByLabel("Email atau username").fill("pendaftar9@contoh.local");
   await q.getByLabel("Password").fill("Pendaftar123");
   await q.getByRole("button", { name: "Masuk" }).click();
   await q.waitForURL(/\/me$/);

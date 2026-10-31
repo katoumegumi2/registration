@@ -51,20 +51,36 @@ export function registerAuthRoutes(app: App) {
     return { sent: true };
   });
 
-  route(app, { method: "post", path: "/auth/login", tag: "Akun", summary: "Login pendaftar", body: z.object({ email: emailSchema, password: z.string().min(1).max(200) }) }, async ({ c, body }) => {
-    const key = `login:p:${body.email}:${clientIp(c)}`;
+  // Satu pintu login: isian berisi @ diperiksa ke akun pendaftar, selain itu ke akun staff.
+  // Username staff tidak boleh memuat @, jadi keduanya tidak bisa tertukar.
+  route(app, { method: "post", path: "/auth/login", tag: "Akun", summary: "Login pendaftar (email) atau staff (username)", body: z.object({ identifier: z.string().trim().toLowerCase().min(1, "Wajib diisi").max(200), password: z.string().min(1, "Wajib diisi").max(200) }) }, async ({ c, body }) => {
+    const ip = clientIp(c);
+    const key = `login:${body.identifier}:${ip}`;
     if (authService.rateBlocked(key, 5)) throw new ApiError(429, "RATE_LIMITED", "Terlalu banyak percobaan gagal. Coba lagi 15 menit lagi.");
-    const p = await participantService.getByEmail(body.email);
-    const ok = await Bun.password.verify(body.password, p?.passwordHash ?? DUMMY_HASH);
-    if (!p || !ok) {
+    const fail = () => {
       authService.rateHit(key, 5, WINDOW_15M);
-      throw new ApiError(401, "INVALID_CREDENTIALS", "Email atau password salah");
+      return new ApiError(401, "INVALID_CREDENTIALS", "Email/username atau password salah");
+    };
+
+    if (body.identifier.includes("@")) {
+      const p = await participantService.getByEmail(body.identifier);
+      const ok = await Bun.password.verify(body.password, p?.passwordHash ?? DUMMY_HASH);
+      if (!p || !ok) throw fail();
+      authService.rateClear(key);
+      if (p.status === "SUSPENDED") throw new ApiError(403, "ACCOUNT_SUSPENDED", "Akun ditangguhkan. Hubungi panitia.");
+      if (!p.emailVerifiedAt) throw new ApiError(403, "EMAIL_NOT_VERIFIED", "Email belum diverifikasi");
+      await authService.startSession(c, "PARTICIPANT", p.id);
+      return { type: "PARTICIPANT", user: participantService.toProfile(p) };
     }
+
+    const s = await staffService.getByUsername(body.identifier);
+    const ok = await Bun.password.verify(body.password, s?.passwordHash ?? DUMMY_HASH);
+    if (!s || !ok || s.status !== "ACTIVE") throw fail();
     authService.rateClear(key);
-    if (p.status === "SUSPENDED") throw new ApiError(403, "ACCOUNT_SUSPENDED", "Akun ditangguhkan. Hubungi panitia.");
-    if (!p.emailVerifiedAt) throw new ApiError(403, "EMAIL_NOT_VERIFIED", "Email belum diverifikasi");
-    await authService.startSession(c, "PARTICIPANT", p.id);
-    return participantService.toProfile(p);
+    await authService.startSession(c, "STAFF", s.id);
+    await staffService.touchLogin(s.id);
+    await db.transaction((tx) => emit(tx, "activity", { action: "STAFF_LOGIN", entityType: "staff", entityId: s.id, description: `${s.username} masuk` }, { actorType: "STAFF", actorId: s.id, ip }));
+    return { type: "STAFF", user: staffService.toPublic(s) };
   });
 
   route(app, { method: "post", path: "/auth/logout", tag: "Akun", summary: "Logout pendaftar" }, async ({ c }) => {
@@ -95,23 +111,6 @@ export function registerAuthRoutes(app: App) {
   });
 
   // ---------- Staff ----------
-  route(app, { method: "post", path: "/admin/auth/login", tag: "Staff", summary: "Login staff dengan username", body: z.object({ username: z.string().trim().min(1).max(100), password: z.string().min(1).max(200) }) }, async ({ c, body }) => {
-    const ip = clientIp(c);
-    const key = `login:s:${body.username}:${ip}`;
-    if (authService.rateBlocked(key, 5)) throw new ApiError(429, "RATE_LIMITED", "Terlalu banyak percobaan gagal. Coba lagi 15 menit lagi.");
-    const s = await staffService.getByUsername(body.username);
-    const ok = await Bun.password.verify(body.password, s?.passwordHash ?? DUMMY_HASH);
-    if (!s || !ok || s.status !== "ACTIVE") {
-      authService.rateHit(key, 5, WINDOW_15M);
-      throw new ApiError(401, "INVALID_CREDENTIALS", "Username atau password salah");
-    }
-    authService.rateClear(key);
-    await authService.startSession(c, "STAFF", s.id);
-    await staffService.touchLogin(s.id);
-    await db.transaction((tx) => emit(tx, "activity", { action: "STAFF_LOGIN", entityType: "staff", entityId: s.id, description: `${s.username} masuk` }, { actorType: "STAFF", actorId: s.id, ip }));
-    return staffService.toPublic(s);
-  });
-
   route(app, { method: "post", path: "/admin/auth/logout", tag: "Staff", summary: "Logout staff" }, async ({ c }) => {
     await authService.endSession(c, "STAFF");
     return { ok: true };

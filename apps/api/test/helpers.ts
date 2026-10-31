@@ -69,7 +69,7 @@ export async function makeParticipant(): Promise<{ client: Client; id: string; e
   const email = `p${nik}@contoh.local`;
   await db.insert(participants).values({ id, nik, email, fullName: `Pendaftar ${nik.slice(-4)}`, gender: "L", birthPlace: "Sampang", birthDate: "2000-01-01", phone: "081234567890", address: "Jl. Uji", passwordHash: HASH, emailVerifiedAt: new Date() });
   const client = new Client();
-  const login = await client.post("/auth/login", { email, password: "RahasiaSekali1" });
+  const login = await client.post("/auth/login", { identifier: email, password: "RahasiaSekali1" });
   if (login.status !== 200) throw new Error(`login gagal: ${login.text}`);
   return { client, id, email };
 }
@@ -79,7 +79,7 @@ export async function makeStaff(role: "ADMIN" | "OPERATOR"): Promise<{ client: C
   const username = `${role.toLowerCase()}${nextNik().slice(-6)}`;
   await db.insert(staffUsers).values({ id, username, fullName: username, role, passwordHash: HASH });
   const client = new Client();
-  const r = await client.post("/admin/auth/login", { username, password: "RahasiaSekali1" });
+  const r = await client.post("/auth/login", { identifier: username, password: "RahasiaSekali1" });
   if (r.status !== 200) throw new Error(`login staff gagal: ${r.text}`);
   return { client, id };
 }

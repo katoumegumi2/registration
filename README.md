@@ -22,6 +22,7 @@ Lalu buka:
 | Alamat | Isi |
 | --- | --- |
 | `APP_URL/` | Halaman publik dan pendaftar |
+| `APP_URL/login` | Login pendaftar (email) dan panitia (username) |
 | `APP_URL/admin` | Panel panitia |
 | `APP_URL/docs` | Dokumentasi API (Scalar) |
 | `APP_URL/health` | Pemeriksaan database dan storage |

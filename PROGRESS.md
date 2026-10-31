@@ -105,3 +105,10 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 
 - Temuan pengguna: setelah login, halaman `/me` tidak punya jalan menuju daftar event.
 - Perbaikan: menu **Event** di header, dan bagian **Event yang bisa didaftar** di `/me`. Lebar isi halaman disamakan dengan header.
+
+### 1 Nov 2026 — Satu halaman login
+
+- Atas usul pengguna, login panitia dan pendaftar disatukan di `/login` dengan isian **Email atau username**. Isian yang memuat `@` diperiksa ke akun pendaftar, selain itu ke akun staff. Setelah masuk, staff diarahkan ke `/admin` dan pendaftar ke `/me`.
+- `/admin/login` dialihkan ke `/login`. Endpoint `POST /admin/auth/login` dihapus, diganti `POST /auth/login`.
+- Tabel, cookie, dan masa berlaku sesi tetap terpisah. Pesan gagal login sama untuk semua jenis akun, dan rate limit tetap per akun + IP.
+- Regresi penuh sekarang berjalan di stack Docker terpisah (`-p pendaftaran-e2e`), jadi tidak menyentuh data di stack utama.

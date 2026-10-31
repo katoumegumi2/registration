@@ -64,7 +64,7 @@ Versi demo wajib menjalankan seluruh alur dari daftar akun sampai laporan dengan
 
 ## 3. Pengguna dan hak akses
 
-Ada empat jenis pengguna: publik, pendaftar, operator, dan admin. Operator mengerjakan verifikasi; admin bisa semua yang operator bisa, ditambah pengaturan event, user, dan sistem. Akun pendaftar dan akun staff disimpan di tabel terpisah dan memakai sesi terpisah.
+Ada empat jenis pengguna: publik, pendaftar, operator, dan admin. Operator mengerjakan verifikasi; admin bisa semua yang operator bisa, ditambah pengaturan event, user, dan sistem. Akun pendaftar dan akun staff disimpan di tabel terpisah dan memakai sesi terpisah, tetapi halaman login hanya satu: isian yang memuat `@` diperiksa ke akun pendaftar, selain itu ke akun staff.
 
 | Aksi | Publik | Pendaftar | Operator | Admin |
 | --- | --- | --- | --- | --- |
@@ -422,7 +422,8 @@ REST API di bawah `/api/v1`, JSON masuk dan keluar, divalidasi Zod, dan didokume
 | POST | `/auth/register` | Daftar akun, kirim OTP |
 | POST | `/auth/verify-email` | Cek OTP, aktifkan akun, buat sesi |
 | POST | `/auth/resend-otp` | Kirim ulang OTP (dibatasi) |
-| POST | `/auth/login` · `/auth/logout` | Sesi pendaftar |
+| POST | `/auth/login` | Satu pintu login. Body `{ identifier, password }`; respons memuat `type` `PARTICIPANT` atau `STAFF` |
+| POST | `/auth/logout` | Akhiri sesi pendaftar |
 | POST | `/auth/forgot-password` · `/auth/reset-password` | Reset password dengan OTP |
 | GET · PATCH | `/me` | Profil sendiri |
 | POST | `/me/change-email` · `/me/change-email/verify` | Ganti email dengan OTP |
@@ -447,7 +448,7 @@ Khusus `STORAGE_DRIVER=local`: `PUT /uploads/:token` dan `GET /files/:token` men
 
 | Method | Path | Akses | Keterangan |
 | --- | --- | --- | --- |
-| POST | `/admin/auth/login` · `/admin/auth/logout` | Staff | Login dengan username |
+| POST | `/admin/auth/logout` | Staff | Akhiri sesi staff; login lewat `/auth/login` |
 | GET | `/admin/dashboard/stats` | Staff | Ringkasan, grafik, kuota; filter `event_id` |
 | GET | `/admin/registrations` | Staff | Daftar dengan `q`, `event_id`, `status`, `program_id`, `from`, `to`, `page` |
 | GET | `/admin/registrations/:id` | Staff | Detail lengkap, riwayat status, dan log pendaftar dari `audit.listForRegistration` |
@@ -510,7 +511,7 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 
 | Halaman | Route | Isi | Halaman dosen |
 | --- | --- | --- | --- |
-| Login staff | `/admin/login` | Username + password | Login Admin |
+| Login staff | `/login`, sama dengan pendaftar; `/admin/login` dialihkan ke sana | Email atau username + password; sistem memilah jenis akun | Login Admin |
 | Dashboard | `/admin` | Kartu ringkasan, grafik, kuota event aktif | Dashboard Admin |
 | Pendaftar | `/admin/registrations` | Tabel, cari, filter, export | Manajemen Pendaftar |
 | Detail pendaftar | `/admin/registrations/:id` | Profil, dokumen + pratinjau, verifikasi, tombol status, riwayat | Detail Pendaftar |

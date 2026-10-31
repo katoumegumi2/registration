@@ -400,7 +400,7 @@ describe("OTP dan akun", () => {
 
   test("OTP kedaluwarsa ditolak; OTP benar mengaktifkan akun dan membuat sesi", async () => {
     const { c, a } = await registerWithOtp();
-    expect((await c.post("/auth/login", { email: a.email, password: a.password })).code).toBe("EMAIL_NOT_VERIFIED");
+    expect((await c.post("/auth/login", { identifier: a.email, password: a.password })).code).toBe("EMAIL_NOT_VERIFIED");
     const [mail] = await outboxFor(a.email);
     const code = mail!.bodyText.match(/\b\d{6}\b/)![0];
     await db.update(emailOtps).set({ expiresAt: new Date(Date.now() - 1000) });
@@ -410,13 +410,50 @@ describe("OTP dan akun", () => {
     expect((await c.get("/me")).data.email).toBe(a.email);
   });
 
+  test("satu pintu login: sistem memilah pendaftar dan staff, sesinya tetap terpisah", async () => {
+    const p = await makeParticipant();
+    const pc = new Client("10.6.6.1");
+    const pr = await pc.post("/auth/login", { identifier: p.email.toUpperCase(), password: "RahasiaSekali1" });
+    expect(pr.data.type).toBe("PARTICIPANT");
+    expect(pc.cookies.has("sid_participant")).toBe(true);
+    expect(pc.cookies.has("sid_staff")).toBe(false);
+    expect((await pc.get("/admin/registrations")).status).toBe(401);
+
+    const row = (await admin.client.get("/admin/staff")).data.find((s: any) => s.id === admin.id);
+    const sc = new Client("10.6.6.2");
+    const sr = await sc.post("/auth/login", { identifier: row.username, password: "RahasiaSekali1" });
+    expect(sr.data.type).toBe("STAFF");
+    expect(sc.cookies.has("sid_staff")).toBe(true);
+    expect(sc.cookies.has("sid_participant")).toBe(false);
+    expect((await sc.get("/me")).status).toBe(401);
+    expect((await sc.get("/admin/staff")).status).toBe(200);
+
+    // Pesan gagal sama, jadi tidak membocorkan jenis atau keberadaan akun.
+    const messages = await Promise.all([
+      new Client("10.6.6.3").post("/auth/login", { identifier: row.username, password: "salah-password" }),
+      new Client("10.6.6.3").post("/auth/login", { identifier: "tidak-ada", password: "salah-password" }),
+      new Client("10.6.6.3").post("/auth/login", { identifier: "tidak@ada.local", password: "salah-password" }),
+    ]);
+    expect(new Set(messages.map((m) => m.json.error.message)).size).toBe(1);
+    expect(messages.every((m) => m.status === 401)).toBe(true);
+    // Endpoint lama sudah tidak ada.
+    expect((await new Client().post("/admin/auth/login", { username: row.username, password: "RahasiaSekali1" })).status).toBe(404);
+  });
+
+  test("login staff gagal 5 kali juga diblok sementara", async () => {
+    const row = (await admin.client.get("/admin/staff")).data.find((s: any) => s.id === operator.id);
+    const c = new Client("10.5.5.5");
+    for (let i = 0; i < 5; i++) expect((await c.post("/auth/login", { identifier: row.username, password: "salah-password" })).status).toBe(401);
+    expect((await c.post("/auth/login", { identifier: row.username, password: "RahasiaSekali1" })).code).toBe("RATE_LIMITED");
+  });
+
   test("login gagal 5 kali diblok sementara", async () => {
     const p = await makeParticipant();
     const c = new Client("10.9.9.9");
-    for (let i = 0; i < 5; i++) expect((await c.post("/auth/login", { email: p.email, password: "salah-password" })).status).toBe(401);
-    expect((await c.post("/auth/login", { email: p.email, password: "RahasiaSekali1" })).code).toBe("RATE_LIMITED");
+    for (let i = 0; i < 5; i++) expect((await c.post("/auth/login", { identifier: p.email, password: "salah-password" })).status).toBe(401);
+    expect((await c.post("/auth/login", { identifier: p.email, password: "RahasiaSekali1" })).code).toBe("RATE_LIMITED");
     // IP lain tidak ikut diblok: limit per akun + IP.
-    expect((await new Client("10.8.8.8").post("/auth/login", { email: p.email, password: "RahasiaSekali1" })).status).toBe(200);
+    expect((await new Client("10.8.8.8").post("/auth/login", { identifier: p.email, password: "RahasiaSekali1" })).status).toBe(200);
   });
 
   test("kirim ulang OTP paling cepat 60 detik", async () => {
@@ -432,7 +469,7 @@ describe("OTP dan akun", () => {
     const code = mail.bodyText.match(/\b\d{6}\b/)![0];
     expect((await new Client().post("/auth/reset-password", { email: p.email, code, password: "PasswordBaru123" })).status).toBe(200);
     expect((await p.client.get("/me")).status).toBe(401);
-    expect((await new Client("10.7.7.7").post("/auth/login", { email: p.email, password: "PasswordBaru123" })).status).toBe(200);
+    expect((await new Client("10.7.7.7").post("/auth/login", { identifier: p.email, password: "PasswordBaru123" })).status).toBe(200);
   });
 
   test("NIK tidak bisa diubah lewat profil; ganti email lewat OTP ke email baru", async () => {
