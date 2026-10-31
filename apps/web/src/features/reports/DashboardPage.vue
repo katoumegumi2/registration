@@ -11,8 +11,9 @@ import { api, errorMessage } from "@/composables/useApi";
 import { useUrlFilters } from "@/composables/useUrlFilters";
 
 Chart.register(BarElement, CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip);
+Chart.defaults.font.family = "'Outfit Variable', sans-serif";
 
-const PRIMARY = "#2563EB";
+const PRIMARY = "#4E9A0C";
 const GRID = "#e2e8f0";
 const INK = "#475569";
 
@@ -47,6 +48,8 @@ const scales = {
 const baseOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { displayColors: false } } };
 const lineOptions = { ...baseOptions, scales, interaction: { mode: "index" as const, intersect: false } };
 const barOptions = { ...baseOptions, scales };
+// Lima status: semua label harus tampil, jangan dilewati otomatis.
+const statusOptions = { ...baseOptions, scales: { ...scales, x: { ...scales.x, ticks: { color: INK, maxRotation: 0, autoSkip: false } } } };
 
 const shortDay = (d: string) => `${d.slice(8)}/${d.slice(5, 7)}`;
 const dailyData = computed(() => ({
@@ -67,28 +70,28 @@ const pct = (q: any) => (q.quota ? Math.min(100, Math.round((q.used / q.quota) *
 
 <template>
   <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-bold text-navy">Dashboard</h1>
+    <h1 class="text-2xl font-bold text-ink">Dashboard</h1>
     <div class="w-72 max-w-full"><SelectInput v-model="filters.event_id" placeholder="Semua event" :options="events.map((e) => ({ value: e.id, label: e.name }))" /></div>
   </div>
   <AsyncState :loading="loading" :error="error" @retry="load">
     <template v-if="stats">
       <div class="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Total pendaftar" :value="stats.total" icon="fa-users" />
+        <StatCard label="Total pendaftar" :value="stats.total" icon="fa-users" dark />
         <StatCard v-for="s in shownStatuses" :key="s" :label="STATUS_LABELS[s]" :value="stats.by_status[s] ?? 0" />
       </div>
       <div class="mt-4 grid gap-4 xl:grid-cols-2">
         <Card title="Pendaftaran per hari (30 hari terakhir)"><div class="h-64"><Line :data="dailyData" :options="lineOptions" /></div></Card>
         <Card title="Pendaftaran per bulan"><div class="h-64"><Bar :data="monthlyData" :options="barOptions" /></div></Card>
-        <Card title="Jumlah per status"><div class="h-64"><Bar :data="statusData" :options="barOptions" /></div></Card>
+        <Card title="Jumlah per status"><div class="h-64"><Bar :data="statusData" :options="statusOptions" /></div></Card>
         <Card title="Kuota event yang sedang buka">
           <ul class="space-y-4">
             <li v-for="q in stats.quotas" :key="q.event_id">
               <div class="mb-1 flex justify-between gap-2 text-sm">
-                <span class="font-medium text-navy">{{ q.name }}</span>
+                <span class="font-medium text-ink">{{ q.name }}</span>
                 <span class="whitespace-nowrap text-slate-600">{{ q.used }}{{ q.quota !== null ? ` / ${q.quota}` : " (tanpa batas)" }} · {{ q.quota_mode === "FCFS" ? "terdaftar" : "diterima" }}</span>
               </div>
               <div v-if="q.quota !== null" class="h-2 overflow-hidden rounded bg-slate-100" role="meter" :aria-valuenow="q.used" aria-valuemin="0" :aria-valuemax="q.quota" :aria-label="q.name">
-                <div class="h-full rounded bg-primary" :style="{ width: `${pct(q)}%` }" />
+                <div class="h-full rounded bg-chart" :style="{ width: `${pct(q)}%` }" />
               </div>
             </li>
             <li v-if="!stats.quotas.length" class="text-sm text-slate-500">Tidak ada event yang sedang buka.</li>

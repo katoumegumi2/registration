@@ -51,14 +51,14 @@ async function save() {
 
 <template>
   <div class="mb-4 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-navy">Jenis Dokumen</h1>
+    <h1 class="text-2xl font-bold text-ink">Jenis Dokumen</h1>
     <Button @click="edit()"><i class="fa-solid fa-plus" aria-hidden="true" /> Tambah</Button>
   </div>
   <Card>
     <AsyncState :loading="loading" :error="error" :empty="!rows.length" @retry="load">
       <ul class="divide-y divide-slate-100 text-sm">
         <li v-for="t in rows" :key="t.id" class="flex items-center justify-between gap-2 py-2">
-          <span><strong class="text-navy">{{ t.name }}</strong><span v-if="t.description" class="block text-slate-500">{{ t.description }}</span></span>
+          <span><strong class="text-ink">{{ t.name }}</strong><span v-if="t.description" class="block text-slate-500">{{ t.description }}</span></span>
           <Button variant="ghost" size="sm" @click="edit(t)">Ubah</Button>
         </li>
       </ul>

@@ -36,7 +36,7 @@ async function onPick(e: Event) {
       <i class="fa-solid fa-upload" aria-hidden="true" /> {{ uploading ? `Mengunggah ${progress}%` : label }}
     </Button>
     <div v-if="uploading" class="mt-2 h-1.5 overflow-hidden rounded bg-slate-200" role="progressbar" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
-      <div class="h-full bg-primary transition-all" :style="{ width: `${progress}%` }" />
+      <div class="h-full bg-chart transition-all" :style="{ width: `${progress}%` }" />
     </div>
     <p v-if="error" class="mt-1 text-xs text-red-700" role="alert">{{ error }}</p>
   </div>

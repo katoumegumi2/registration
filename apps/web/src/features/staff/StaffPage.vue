@@ -87,7 +87,7 @@ async function resetPw() {
 
 <template>
   <div class="mb-4 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-navy">Staff</h1>
+    <h1 class="text-2xl font-bold text-ink">Staff</h1>
     <Button @click="edit()"><i class="fa-solid fa-plus" aria-hidden="true" /> Tambah staff</Button>
   </div>
   <Card>

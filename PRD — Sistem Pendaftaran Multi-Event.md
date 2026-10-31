@@ -28,7 +28,7 @@ Tujuan produk:
 | `MailApp` | SMTP (nodemailer) lewat outbox, diatur dari panel admin | Pengirim bisa diganti ke domain sendiri tanpa ubah kode |
 | Script Properties | `.env` + tabel `settings` | Rahasia di `.env`, pengaturan operasional di panel |
 | Deploy sebagai Web App | Docker Compose di server lokal | Presentasi dari server sendiri |
-| Bootstrap 5 | Tailwind CSS (palet warna tetap) | Preferensi tampilan |
+| Bootstrap 5, palet navy-biru | Tailwind CSS, palet hijau lime | Preferensi tampilan; token warna ada di satu file sehingga palet bisa dikembalikan |
 
 ## 2. Ruang lingkup
 
@@ -104,7 +104,7 @@ Browser hanya bicara ke API, kecuali untuk berkas: API menerbitkan presigned URL
 | Cadangan storage | Disk lokal lewat `Bun.file` | Diaktifkan dengan `STORAGE_DRIVER=local` |
 | Email | nodemailer → Gmail SMTP (App Password) | Mailpit untuk development |
 | Frontend | Vue 3 + Vite + Pinia + Vue Router | SPA, dilayani oleh container API |
-| Styling | Tailwind CSS | Palet warna dosen dijadikan token tema |
+| Styling | Tailwind CSS | Palet dijadikan token tema; font Outfit |
 | Grafik | Chart.js lewat vue-chartjs |  |
 | Ikon | Font Awesome (free) | Sesuai spesifikasi |
 | Export | exceljs (Excel), CSV stream | PDF lewat halaman cetak browser |
@@ -524,7 +524,8 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 
 ### Desain
 
-- Palet dari spesifikasi dijadikan token Tailwind: `navy #142D4E` (sidebar, heading), `primary #2563EB` (tombol, tautan), `primary-light #EFF6FF` (latar sorotan), `white #FFFFFF` (kartu), `background #F8FAFC` (latar halaman).
+- Palet menggantikan palet spesifikasi dosen, dijadikan token Tailwind di `apps/web/src/styles.css`: `ink #171A15` (sidebar, teks), `lime #B5F01E` (tombol utama, teks gelap di atasnya), `primary #2F7A0A` (tautan), `primary-light #E8F7C2` (latar sorotan), `forest #0B4F1E` dan `teal #0E5A6B` (aksen), `chart #4E9A0C` (grafik), `white #FFFFFF` (kartu), `background #EFF0EA` (latar halaman). Lime tidak dipakai sebagai warna teks karena kontrasnya tidak cukup.
+- Gaya: tombol berbentuk pill, kartu bersudut besar, sidebar admin gelap yang mengapung. Landing memakai kartu gradien dan lingkaran konsentris; isinya diambil dari event sungguhan.
 - Badge status memakai warna tetap: Submitted biru, Under Review kuning, Accepted hijau, Rejected merah, Waiting List ungu, Draft abu-abu.
 - Setiap halaman data punya keadaan memuat, kosong, dan error. Aksi yang mengubah data menampilkan konfirmasi dan notifikasi hasil.
 - Teks antarmuka berbahasa Indonesia, tanggal dalam format `31 Okt 2026, 14.05 WIB`.

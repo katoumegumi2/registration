@@ -109,7 +109,7 @@ async function submit() {
     <template v-if="reg">
       <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h1 class="text-2xl font-bold text-navy">{{ reg.event.name }}</h1>
+          <h1 class="text-2xl font-bold text-ink">{{ reg.event.name }}</h1>
           <p class="text-sm text-slate-600">{{ reg.registration_number ?? "Draft pendaftaran" }}<span v-if="reg.program_name"> · {{ reg.program_name }}</span></p>
         </div>
         <StatusBadge :status="reg.status" />
@@ -118,7 +118,7 @@ async function submit() {
       <!-- Wizard saat draft -->
       <template v-if="isDraft">
         <ol class="mb-4 flex flex-wrap gap-2 text-sm">
-          <li v-for="(s, i) in steps" :key="s" class="rounded-full px-3 py-1" :class="i === step ? 'bg-primary text-white' : i < step ? 'bg-primary-light text-primary' : 'bg-slate-100 text-slate-600'">{{ i + 1 }}. {{ s }}</li>
+          <li v-for="(s, i) in steps" :key="s" class="rounded-full px-3 py-1" :class="i === step ? 'bg-forest text-white' : i < step ? 'bg-primary-light text-primary' : 'bg-white text-slate-600'">{{ i + 1 }}. {{ s }}</li>
         </ol>
 
         <Card v-if="stepName === 'Pilih program'" title="Pilih program">
@@ -133,7 +133,7 @@ async function submit() {
           <li v-for="r in reg.requirements" :key="r.document_type_id" class="py-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="min-w-0">
-                <span class="font-medium text-navy">{{ r.name }}</span>
+                <span class="font-medium text-ink">{{ r.name }}</span>
                 <Badge class="ml-2" :tone="r.is_required ? 'red' : 'gray'">{{ r.is_required ? "Wajib" : "Opsional" }}</Badge>
                 <p v-if="r.notes" class="text-xs text-slate-500">{{ r.notes }}</p>
               </div>

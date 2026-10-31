@@ -96,18 +96,18 @@ async function changePassword() {
 </script>
 
 <template>
-  <h1 class="mb-4 text-2xl font-bold text-navy">Profil</h1>
+  <h1 class="mb-4 text-2xl font-bold text-ink">Profil</h1>
   <AsyncState :loading="loading" :error="error" @retry="load">
     <div v-if="me" class="space-y-4">
       <Card title="Data diri">
-        <p class="mb-4 text-sm text-slate-600">NIK <strong class="text-navy">{{ me.nik }}</strong> tidak bisa diubah.</p>
+        <p class="mb-4 text-sm text-slate-600">NIK <strong class="text-ink">{{ me.nik }}</strong> tidak bisa diubah.</p>
         <form novalidate @submit.prevent="saveProfile">
           <ProfileFields :form="form" :errors="errors" />
           <Button type="submit" class="mt-4" :loading="busy === 'profile'">Simpan profil</Button>
         </form>
       </Card>
       <Card title="Ganti email">
-        <p class="mb-3 text-sm text-slate-600">Email saat ini: <strong class="text-navy">{{ me.email }}</strong>. Email lama tetap berlaku sampai email baru terverifikasi.</p>
+        <p class="mb-3 text-sm text-slate-600">Email saat ini: <strong class="text-ink">{{ me.email }}</strong>. Email lama tetap berlaku sampai email baru terverifikasi.</p>
         <form v-if="!emailForm.sent" class="space-y-3" novalidate @submit.prevent="requestEmail">
           <TextInput v-model="emailForm.email" label="Email baru" type="email" :error="emailErrors.email" />
           <Button type="submit" variant="secondary" :loading="busy === 'email'">Kirim kode ke email baru</Button>

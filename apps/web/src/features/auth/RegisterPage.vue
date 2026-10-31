@@ -37,7 +37,7 @@ async function submit() {
 
 <template>
   <div class="mx-auto max-w-2xl">
-    <h1 class="mb-4 text-2xl font-bold text-navy">Daftar akun</h1>
+    <h1 class="mb-4 text-2xl font-bold text-ink">Daftar akun</h1>
     <form novalidate @submit.prevent="submit">
       <Card class="mb-4" title="Akun">
         <div class="grid gap-4 sm:grid-cols-2">

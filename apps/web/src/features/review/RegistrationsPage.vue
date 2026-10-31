@@ -61,7 +61,7 @@ const exportUrl = (format: string) => {
 
 <template>
   <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-bold text-navy">Pendaftar</h1>
+    <h1 class="text-2xl font-bold text-ink">Pendaftar</h1>
     <div class="flex gap-2">
       <a :href="exportUrl('csv')"><Button variant="secondary" size="sm"><i class="fa-solid fa-file-csv" aria-hidden="true" /> CSV</Button></a>
       <a :href="exportUrl('xlsx')"><Button variant="secondary" size="sm"><i class="fa-solid fa-file-excel" aria-hidden="true" /> Excel</Button></a>
@@ -69,7 +69,7 @@ const exportUrl = (format: string) => {
   </div>
   <Card class="mb-4">
     <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-      <input v-model="filters.q" type="search" placeholder="Cari nama, nomor, NIK, email" aria-label="Cari" class="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-3 xl:col-span-2" />
+      <input v-model="filters.q" type="search" placeholder="Cari nama, nomor, NIK, email" aria-label="Cari" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm md:col-span-3 xl:col-span-2" />
       <SelectInput v-model="filters.event_id" placeholder="Semua event" :options="options.map((e) => ({ value: e.id, label: e.name }))" />
       <SelectInput v-model="filters.status" placeholder="Semua status" :options="statusOptions" />
       <SelectInput v-model="filters.program_id" placeholder="Semua program" :disabled="!programs.length" :options="programs.map((p: any) => ({ value: p.id, label: p.name }))" />

@@ -55,7 +55,7 @@ async function daftar() {
         <Badge tone="blue">{{ EVENT_TYPE_LABELS[event.type] }}</Badge>
         <Badge :tone="event.is_open ? 'green' : 'gray'">{{ event.is_open ? "Buka" : event.is_full ? "Kuota penuh" : "Tutup" }}</Badge>
       </div>
-      <h1 class="text-2xl font-bold text-navy">{{ event.name }}</h1>
+      <h1 class="text-2xl font-bold text-ink">{{ event.name }}</h1>
       <p class="mt-2 whitespace-pre-line text-slate-700">{{ event.description }}</p>
       <div class="mt-5 grid gap-4 md:grid-cols-2">
         <Card title="Jadwal dan kuota">

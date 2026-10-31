@@ -29,7 +29,7 @@ const statusLabel: Record<string, string> = { DRAFT: "Draft", PUBLISHED: "Dipubl
 
 <template>
   <div class="mb-4 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-navy">Event</h1>
+    <h1 class="text-2xl font-bold text-ink">Event</h1>
     <RouterLink to="/admin/events/new"><Button><i class="fa-solid fa-plus" aria-hidden="true" /> Buat event</Button></RouterLink>
   </div>
   <Card>

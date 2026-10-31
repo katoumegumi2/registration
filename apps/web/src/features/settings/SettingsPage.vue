@@ -100,7 +100,7 @@ async function saveApp() {
 </script>
 
 <template>
-  <h1 class="mb-4 text-2xl font-bold text-navy">Pengaturan</h1>
+  <h1 class="mb-4 text-2xl font-bold text-ink">Pengaturan</h1>
   <AsyncState :loading="loading" :error="error" @retry="load">
     <div class="space-y-4">
       <Card title="Email">

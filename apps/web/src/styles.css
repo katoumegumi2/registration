@@ -1,15 +1,28 @@
 @import "tailwindcss";
+@import "@fontsource-variable/outfit";
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 
-/* Palet dari spesifikasi (PRD 9) */
+/*
+ * Token warna. Komponen hanya memakai nama ini, jadi tema cukup diganti di sini.
+ * Lime hanya untuk latar dengan teks gelap; sebagai teks kontrasnya tidak cukup, pakai primary.
+ */
 @theme {
-  --color-navy: #142d4e;
-  --color-primary: #2563eb;
-  --color-primary-light: #eff6ff;
-  --color-background: #f8fafc;
+  --font-sans: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #171a15;
+  --color-primary: #2f7a0a;
+  --color-primary-light: #e8f7c2;
+  --color-lime: #b5f01e;
+  --color-lime-dark: #a3dc12;
+  --color-chart: #4e9a0c;
+  --color-forest: #0b4f1e;
+  --color-teal: #0e5a6b;
+  --color-background: #eff0ea;
 }
 
-html, body { background: var(--color-background); color: #0f172a; }
+html, body { background: var(--color-background); color: var(--color-ink); }
+
+.gradient-green { background: linear-gradient(135deg, #7ed321 0%, #b5f01e 100%); }
+.gradient-teal { background: linear-gradient(135deg, #0e5a6b 0%, #1c7a5a 100%); }
 
 @media print {
   .no-print { display: none !important; }

@@ -118,7 +118,7 @@ async function moveProgram() {
       <RouterLink to="/admin/registrations" class="text-sm text-primary hover:underline"><i class="fa-solid fa-arrow-left mr-1" aria-hidden="true" />Daftar pendaftar</RouterLink>
       <div class="mt-2 mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 class="text-2xl font-bold text-navy">{{ reg.participant.full_name }}</h1>
+          <h1 class="text-2xl font-bold text-ink">{{ reg.participant.full_name }}</h1>
           <p class="text-sm text-slate-600">{{ reg.registration_number }} · {{ reg.event.name }}<span v-if="reg.program_name"> · {{ reg.program_name }}</span></p>
         </div>
         <StatusBadge :status="reg.status" />
@@ -142,7 +142,7 @@ async function moveProgram() {
               <li v-for="d in reg.documents" :key="d.id" class="py-3">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                   <div class="min-w-0">
-                    <span class="font-medium text-navy">{{ d.document_type_name }}</span>
+                    <span class="font-medium text-ink">{{ d.document_type_name }}</span>
                     <Badge v-if="d.replaced_at" class="ml-2" tone="yellow"><i class="fa-solid fa-rotate" aria-hidden="true" /> Diperbarui</Badge>
                     <p class="text-sm break-all text-slate-600">{{ d.original_name }} · {{ formatBytes(d.size_bytes) }}</p>
                     <p v-if="d.notes" class="text-sm text-red-800">Catatan: {{ d.notes }}</p>

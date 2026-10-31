@@ -28,13 +28,13 @@ const toFix = (r: any) => r.documents.filter((d: any) => d.verification_status =
 </script>
 
 <template>
-  <h1 class="mb-4 text-2xl font-bold text-navy">Pendaftaran Saya</h1>
+  <h1 class="mb-4 text-2xl font-bold text-ink">Pendaftaran Saya</h1>
   <AsyncState :loading="loading" :error="error" :empty="!rows.length" empty-text="Anda belum mendaftar ke event mana pun." @retry="load">
     <div class="space-y-4">
       <Card v-for="r in rows" :key="r.id">
         <div class="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <h2 class="font-semibold text-navy">{{ r.event.name }}</h2>
+            <h2 class="font-semibold text-ink">{{ r.event.name }}</h2>
             <p class="text-sm text-slate-600">{{ r.registration_number ?? "Belum dikirim" }}<span v-if="r.program_name"> · {{ r.program_name }}</span></p>
           </div>
           <StatusBadge :status="r.status" />

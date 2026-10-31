@@ -33,7 +33,7 @@ const cls = "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm";
 </script>
 
 <template>
-  <h1 class="mb-4 text-2xl font-bold text-navy">Activity Log</h1>
+  <h1 class="mb-4 text-2xl font-bold text-ink">Activity Log</h1>
   <Card class="mb-4">
     <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
       <input v-model.lazy="filters.action" placeholder="Aksi, mis. STATUS_CHANGED" aria-label="Aksi" :class="cls" />

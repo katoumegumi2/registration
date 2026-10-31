@@ -125,7 +125,7 @@ async function deleteProgram(p: any) {
 
 <template>
   <RouterLink to="/admin/events" class="text-sm text-primary hover:underline"><i class="fa-solid fa-arrow-left mr-1" aria-hidden="true" />Daftar event</RouterLink>
-  <h1 class="mt-2 mb-4 text-2xl font-bold text-navy">{{ isNew ? "Buat event" : form.name }}</h1>
+  <h1 class="mt-2 mb-4 text-2xl font-bold text-ink">{{ isNew ? "Buat event" : form.name }}</h1>
   <AsyncState :loading="loading" :error="error" @retry="load">
     <p v-if="locked" class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-900"><i class="fa-solid fa-lock mr-1" aria-hidden="true" />Sudah ada pendaftaran yang submit. Prefix, mode kuota, dan syarat dokumen terkunci. Kuota minimal {{ slotsUsed }}.</p>
     <form class="space-y-4" novalidate @submit.prevent="save">

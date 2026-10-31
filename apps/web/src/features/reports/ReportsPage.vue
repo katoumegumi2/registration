@@ -40,7 +40,7 @@ const label = (s: string) => STATUS_LABELS[s as RegistrationStatus];
 
 <template>
   <div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-bold text-navy">Laporan</h1>
+    <h1 class="text-2xl font-bold text-ink">Laporan</h1>
     <div class="flex flex-wrap gap-2">
       <div class="w-72 max-w-full"><SelectInput v-model="filters.event_id" placeholder="Pilih event" :options="events.map((e) => ({ value: e.id, label: e.name }))" /></div>
       <Button :disabled="!data" @click="print"><i class="fa-solid fa-print" aria-hidden="true" /> Cetak / simpan PDF</Button>
@@ -50,7 +50,7 @@ const label = (s: string) => STATUS_LABELS[s as RegistrationStatus];
   <AsyncState :loading="loading" :error="error" @retry="load">
     <article v-if="data" class="space-y-4">
       <header>
-        <h2 class="text-xl font-bold text-navy">Laporan Pendaftaran: {{ data.event.name }}</h2>
+        <h2 class="text-xl font-bold text-ink">Laporan Pendaftaran: {{ data.event.name }}</h2>
         <p class="text-sm text-slate-600">Periode {{ formatTanggal(data.event.start_at) }} – {{ formatTanggal(data.event.end_at) }} · Total {{ data.total }} pendaftar · Dicetak {{ formatTanggalWIB(new Date()) }}</p>
       </header>
       <div class="grid gap-4 md:grid-cols-3 print:grid-cols-3">

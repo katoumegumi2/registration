@@ -50,7 +50,7 @@ const labels: Record<string, string> = { SENT: "Terkirim", FAILED: "Gagal", PEND
 
 <template>
   <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-bold text-navy">Outbox Email</h1>
+    <h1 class="text-2xl font-bold text-ink">Outbox Email</h1>
     <div class="w-48"><SelectInput v-model="filters.status" placeholder="Semua status" :options="Object.entries(labels).map(([value, label]) => ({ value, label }))" /></div>
   </div>
   <Card>

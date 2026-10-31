@@ -24,6 +24,8 @@ const items = computed(() => [
     : []),
 ]);
 
+const ACTIVE = "!bg-lime !text-ink font-medium";
+
 async function logout() {
   await auth.logoutStaff();
   router.push("/admin/login");
@@ -31,25 +33,25 @@ async function logout() {
 </script>
 
 <template>
-  <div class="flex min-h-screen">
-    <aside class="no-print flex w-60 shrink-0 flex-col bg-navy text-white">
-      <div class="px-5 py-4 font-semibold"><i class="fa-solid fa-clipboard-list mr-2" aria-hidden="true" />Panel Panitia</div>
-      <nav class="flex-1 px-2 text-sm">
+  <div class="flex min-h-screen items-start">
+    <aside class="no-print sticky top-3 m-3 mr-0 flex h-[calc(100vh-1.5rem)] w-60 shrink-0 flex-col overflow-hidden rounded-[2rem] bg-ink text-white">
+      <div class="px-5 pt-5 pb-4 text-lg font-semibold"><i class="fa-solid fa-clipboard-list mr-2 text-lime" aria-hidden="true" />Panel Panitia</div>
+      <nav class="min-h-0 flex-1 overflow-y-auto px-3 text-sm">
         <RouterLink
           v-for="i in items"
           :key="i.to"
           :to="i.to"
-          class="mb-0.5 flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/10"
-          :exact-active-class="i.exact ? 'bg-white/15' : ''"
-          :active-class="i.exact ? '' : 'bg-white/15'"
+          class="mb-1 flex items-center gap-3 rounded-full px-4 py-2.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          :exact-active-class="i.exact ? ACTIVE : ''"
+          :active-class="i.exact ? '' : ACTIVE"
         >
           <i class="fa-solid w-4 text-center" :class="i.icon" aria-hidden="true" />{{ i.label }}
         </RouterLink>
       </nav>
-      <div class="border-t border-white/20 px-5 py-3 text-sm">
+      <div class="border-t border-white/15 px-5 py-4 text-sm">
         <div class="font-medium">{{ auth.staff?.full_name }}</div>
-        <div class="mb-2 text-xs text-white/70">{{ auth.staff?.role }}</div>
-        <button class="hover:underline" @click="logout"><i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true" />Keluar</button>
+        <div class="mb-2 text-xs text-white/60">{{ auth.staff?.role }}</div>
+        <button class="text-white/80 hover:text-white hover:underline" @click="logout"><i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true" />Keluar</button>
       </div>
     </aside>
     <main class="min-w-0 flex-1 p-6"><RouterView /></main>

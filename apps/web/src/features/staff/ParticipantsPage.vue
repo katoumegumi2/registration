@@ -52,7 +52,7 @@ async function verify(p: any) {
 </script>
 
 <template>
-  <h1 class="mb-4 text-2xl font-bold text-navy">Akun Pendaftar</h1>
+  <h1 class="mb-4 text-2xl font-bold text-ink">Akun Pendaftar</h1>
   <Card class="mb-4"><input v-model="filters.q" type="search" placeholder="Cari nama, email, NIK" aria-label="Cari" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" /></Card>
   <Card>
     <AsyncState :loading="loading" :error="error" :empty="data && !data.rows.length" empty-text="Tidak ada akun yang cocok." @retry="load">

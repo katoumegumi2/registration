@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
     path: "/",
     component: () => import("./layouts/PublicLayout.vue"),
     children: [
-      { path: "", component: () => import("./features/events/LandingPage.vue") },
+      { path: "", meta: { fullWidth: true }, component: () => import("./features/events/LandingPage.vue") },
       { path: "events/:slug", component: () => import("./features/events/EventDetailPage.vue") },
       { path: "register", component: () => import("./features/auth/RegisterPage.vue") },
       { path: "verify", component: () => import("./features/auth/VerifyPage.vue") },

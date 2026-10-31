@@ -30,8 +30,10 @@ async function submit() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-navy p-4">
-    <Card title="Login Panitia" class="w-full max-w-sm">
+  <div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink p-4">
+    <div class="absolute top-1/2 left-1/2 size-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-lime/20" aria-hidden="true" />
+    <div class="absolute top-1/2 left-1/2 size-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-lime/30" aria-hidden="true" />
+    <Card title="Login Panitia" class="relative w-full max-w-sm">
       <form class="space-y-4" novalidate @submit.prevent="submit">
         <TextInput v-model="form.username" label="Username" autocomplete="username" required />
         <TextInput v-model="form.password" label="Password" type="password" autocomplete="current-password" required />
