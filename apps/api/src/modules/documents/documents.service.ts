@@ -1,4 +1,4 @@
-import { and, eq, isNull, lt } from "drizzle-orm";
+import { and, asc, eq, isNull, lt } from "drizzle-orm";
 import { canReplaceDocument, canVerifyDocument, detectFileType, MAX_FILE_BYTES, type DetectedFile, type RegistrationStatus, type VerificationStatus } from "@pendaftaran/shared";
 import { verifyToken } from "../../shared/crypto";
 import { db, newId, type DbOrTx, type Tx } from "../../shared/db/client";
@@ -21,12 +21,15 @@ const UPLOAD_TTL_MS = 3600_000;
 
 const isAttachment = (mime: string) => !(mime === "application/pdf" || mime.startsWith("image/"));
 
-export const listFor = (registrationId: string, conn: DbOrTx = db) => conn.select().from(documents).where(eq(documents.registrationId, registrationId));
+export const listFor = (registrationId: string, conn: DbOrTx = db) => conn.select().from(documents).where(eq(documents.registrationId, registrationId)).orderBy(asc(documents.documentTypeId));
 export const getById = async (id: string, conn: DbOrTx = db) => (await conn.select().from(documents).where(eq(documents.id, id)))[0] ?? null;
 
 export async function withNames(rows: DocumentRow[], conn: DbOrTx = db) {
   const names = await eventService.documentTypeNames([...new Set(rows.map((r) => r.documentTypeId))], conn);
-  return rows.map((d) => ({
+  // Urutan tetap menurut nama: tanpa ini Postgres bisa memindahkan baris setelah UPDATE,
+  // sehingga dokumen melompat posisi di layar staff setelah diverifikasi.
+  const ordered = [...rows].sort((a, b) => (names.get(a.documentTypeId) ?? "").localeCompare(names.get(b.documentTypeId) ?? ""));
+  return ordered.map((d) => ({
     id: d.id, document_type_id: d.documentTypeId, document_type_name: names.get(d.documentTypeId) ?? "", original_name: d.originalName,
     mime_type: d.mimeType, size_bytes: d.sizeBytes, verification_status: d.verificationStatus, notes: d.notes,
     uploaded_at: d.uploadedAt, replaced_at: d.replacedAt, verified_at: d.verifiedAt, attachment_only: isAttachment(d.mimeType),

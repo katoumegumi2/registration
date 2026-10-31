@@ -219,6 +219,19 @@ describe("dokumen", () => {
     expect((await operator.client.post(`/admin/registrations/${a.regId}/transitions`, { to: "ACCEPTED" })).status).toBe(200);
   });
 
+  test("urutan dokumen tetap setelah diverifikasi dan diganti", async () => {
+    const ev = await makeEvent({ mode: "SELECTION", quota: 5, requiredDocs: 4 });
+    const a = await underReview(ev);
+    const order = async () => (await operator.client.get(`/admin/registrations/${a.regId}`)).data.documents.map((d: any) => d.document_type_name);
+    const before = await order();
+    expect(before).toEqual([...before].sort((x: string, y: string) => x.localeCompare(y)));
+    const ids = (await operator.client.get(`/admin/registrations/${a.regId}`)).data.documents.map((d: any) => d.id);
+    for (const id of [ids[2], ids[0], ids[3], ids[1]]) {
+      await operator.client.patch(`/admin/documents/${id}/verification`, { status: "VALID" });
+      expect(await order()).toEqual(before);
+    }
+  });
+
   test("file pengganti yang gagal konfirmasi tidak menghapus file lama", async () => {
     const ev = await makeEvent({ mode: "FCFS", quota: 5 });
     const p = await makeParticipant();

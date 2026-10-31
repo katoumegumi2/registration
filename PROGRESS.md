@@ -112,3 +112,8 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 - `/admin/login` dialihkan ke `/login`. Endpoint `POST /admin/auth/login` dihapus, diganti `POST /auth/login`.
 - Tabel, cookie, dan masa berlaku sesi tetap terpisah. Pesan gagal login sama untuk semua jenis akun, dan rate limit tetap per akun + IP.
 - Regresi penuh sekarang berjalan di stack Docker terpisah (`-p pendaftaran-e2e`), jadi tidak menyentuh data di stack utama.
+
+### 1 Nov 2026 — Bug urutan dokumen
+
+- Uji browser gagal sesekali di langkah kuota penuh. Dugaan awal (masalah waktu di skrip) ternyata salah. Daftar dokumen diambil tanpa `ORDER BY`, sehingga urutannya bisa berubah setelah UPDATE, dan dokumen melompat posisi di layar staff setelah diverifikasi.
+- Perbaikan: dokumen selalu diurutkan menurut nama jenis, ditambah satu test.
