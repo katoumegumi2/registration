@@ -40,12 +40,12 @@ await db.insert(events).values([
   {
     id: pmbId, name: "Penerimaan Mahasiswa Baru 2027", slug: "pmb-2027", type: "PMB", registrationPrefix: "PMB",
     description: "Seleksi penerimaan mahasiswa baru tahun akademik 2027. Pendaftar yang lolos verifikasi berkas akan diseleksi sesuai kuota.",
-    startAt: new Date(now - 30 * DAY), endAt: new Date(now + 60 * DAY), quotaMode: "SELECTION", quota: 10, requiresProgram: true, status: "PUBLISHED", createdBy: adminId,
+    startAt: new Date(now - 30 * DAY), endAt: new Date(now + 60 * DAY), quotaMode: "SELECTION", quota: 5, requiresProgram: true, status: "PUBLISHED", createdBy: adminId,
   },
   {
     id: semId, name: "Seminar Transformasi Digital Desa", slug: "seminar-digital-desa", type: "SEMINAR", registrationPrefix: "SEM",
     description: "Seminar satu hari dengan kapasitas terbatas. Siapa cepat dia dapat.",
-    startAt: new Date(now - 20 * DAY), endAt: new Date(now + 30 * DAY), quotaMode: "FCFS", quota: 12, requiresProgram: false, status: "PUBLISHED", createdBy: adminId,
+    startAt: new Date(now - 20 * DAY), endAt: new Date(now + 30 * DAY), quotaMode: "FCFS", quota: 9, requiresProgram: false, status: "PUBLISHED", createdBy: adminId,
   },
 ]);
 

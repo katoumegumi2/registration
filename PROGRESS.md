@@ -6,14 +6,14 @@ Acuan: `PRD — Sistem Pendaftaran Multi-Event.md`, urutan tahap dari bagian 12.
 
 | # | Tahap | Status |
 | --- | --- | --- |
-| 1 | Fondasi | Berjalan |
-| 2 | Auth | Belum |
-| 3 | Event | Belum |
-| 4 | Pendaftaran | Belum |
-| 5 | Verifikasi | Belum |
-| 6 | Notifikasi | Belum |
-| 7 | Laporan | Belum |
-| 8 | Frontend publik dan pendaftar | Belum |
+| 1 | Fondasi | Selesai |
+| 2 | Auth | Selesai |
+| 3 | Event | Selesai |
+| 4 | Pendaftaran | Selesai |
+| 5 | Verifikasi | Selesai |
+| 6 | Notifikasi | Selesai |
+| 7 | Laporan | Selesai |
+| 8 | Frontend publik dan pendaftar | Berjalan |
 | 9 | Frontend admin | Belum |
 | 10 | Penutup | Belum |
 
@@ -41,3 +41,17 @@ Skrip: `apps/api/src/scripts/proxy-signature-check.ts`. Hasil lewat `http://loca
 Kesimpulan: rencana cadangan (host terpisah atau `STORAGE_DRIVER=local`) tidak diperlukan.
 
 Port yang dipakai karena port 3000 dan lainnya sudah terpakai di server: Nginx `8080`; Postgres `127.0.0.1:55432`; RustFS `127.0.0.1:59000` dan `59001`; Mailpit SMTP `127.0.0.1:51025`, UI `8025`.
+
+### 31 Okt 2026 — Tahap 1–7: backend selesai
+
+- 11 modul, 15 tabel, migration, seed (2 staff, 2 event, 6 jenis dokumen, 24 pendaftar, status beragam).
+- `bun test`: **45 lolos, 0 gagal**, terhadap Postgres dan RustFS sungguhan, database uji terpisah (`pendaftaran_test`).
+- Uji mutasi: kunci baris event dimatikan sementara, uji 50 submit gagal (3 berhasil, seharusnya 10). Artinya test benar-benar mendeteksi hilangnya kunci. Kunci sudah dipulihkan.
+- Kerja berada di worktree `.claude/worktrees/build`, branch `build`, karena pengaman sesi latar belakang mewajibkannya.
+
+Penyimpangan kecil dari PRD:
+
+- **Hono RPC (`hc<AppType>`) tidak dipakai.** Route didaftarkan lewat helper `route()` agar validasi, OpenAPI, dan format respons seragam, sehingga tipe rantai RPC tidak tersedia. Frontend memakai klien `fetch` bertipe dan skema dari `packages/shared`.
+- **Access key khusus aplikasi belum dibuat.** `S3_ACCESS_KEY` adalah kredensial root RustFS, tapi nilainya acak dan sudah bukan bawaan.
+- **Tambahan di luar daftar API PRD:** `GET /admin/auth/me`, `GET /admin/event-options` (filter untuk operator), `PATCH /admin/registrations/:id/program` (pindah program, PRD 6.4), `DELETE /admin/events/:id/programs/:programId` (EV-02).
+- **Middleware sesi ada di modul `auth`**, bukan `shared/http`, karena perlu tabel `sessions`.
