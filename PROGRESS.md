@@ -117,3 +117,7 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 
 - Uji browser gagal sesekali di langkah kuota penuh. Dugaan awal (masalah waktu di skrip) ternyata salah. Daftar dokumen diambil tanpa `ORDER BY`, sehingga urutannya bisa berubah setelah UPDATE, dan dokumen melompat posisi di layar staff setelah diverifikasi.
 - Perbaikan: dokumen selalu diurutkan menurut nama jenis, ditambah satu test.
+
+### 1 Nov 2026 — PRD disinkronkan dengan aplikasi
+
+- Disesuaikan: login satu halaman (AK-03), klien API tanpa Hono RPC, layout, Reka UI, halaman `/me`, endpoint tambahan, langkah instalasi, dan urutan dokumen.

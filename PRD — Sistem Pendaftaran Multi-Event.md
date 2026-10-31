@@ -22,7 +22,7 @@ Tujuan produk:
 | `CONFIG` satu baris | Tabel `events` | Banyak event bisa dibuka bersamaan, kuota per event |
 | `REGISTRANTS` | `participants` (akun) + `registrations` (pendaftaran per event) | Normalisasi: data orang tidak ditulis ulang per event |
 | Cek status pakai nomor + token | Login akun pendaftar | Lebih aman, semua pendaftaran terlihat di satu tempat |
-| `USERS` login dengan email | `staff_users` login dengan username | Email bisa berubah, username tetap |
+| `USERS` login dengan email | `staff_users` login dengan username, lewat halaman login yang sama dengan pendaftar | Email bisa berubah, username tetap; pengguna tidak perlu tahu alamat login khusus |
 | `document_url` di `REGISTRANTS` | Dihapus, cukup tabel `documents` | Satu pendaftaran bisa punya banyak berkas |
 | `LockService` | Transaksi + `SELECT ... FOR UPDATE` | Kuota dan nomor registrasi dijamin tidak dobel |
 | `MailApp` | SMTP (nodemailer) lewat outbox, diatur dari panel admin | Pengirim bisa diganti ke domain sendiri tanpa ubah kode |
@@ -138,7 +138,7 @@ apps/api/src/
     notifications/  reports/
   shared/
     db/        client, helper transaksi, paginasi
-    http/      format error, validator, requireRole, requireParticipant
+    http/      format error, validator, helper route
     storage/   StorageDriver: s3 (RustFS) dan local
     mail/      transport nodemailer
     crypto/    AES-256-GCM, hash token
@@ -150,7 +150,7 @@ apps/api/src/
 | `audit` | Mencatat activity log dari event modul lain; menyediakan `listForEntity` dan `listForRegistration` untuk dibaca | `activity_logs` |
 | `settings` | Pengaturan aplikasi dan email, enkripsi nilai rahasia | `settings` |
 | `notifications` | Outbox, worker, template email; data email datang dari payload event | `notifications` |
-| `auth` | Sesi, login staff dan pendaftar, OTP, rate limit | `sessions`, `email_otps` |
+| `auth` | Sesi, login staff dan pendaftar, middleware requireStaff/requireAdmin/requireParticipant, OTP, rate limit | `sessions`, `email_otps` |
 | `participants` | Akun dan profil pendaftar | `participants` |
 | `staff` | Staff user dan role | `staff_users` |
 | `events` | Event, program, master jenis dokumen, syarat dokumen, kunci kuota | `events`, `event_programs`, `document_types`, `event_document_requirements` |
@@ -186,7 +186,7 @@ modules/registrations/
 **Reuse kode**
 
 - `packages/shared`: skema Zod, enum status, tabel transisi status, dan aturan validasi (NIK, ukuran dan jenis file) dipakai bersama oleh API dan Vue.
-- Client API frontend bertipe dari Hono RPC (`hc<AppType>`), jadi perubahan bentuk respons di API langsung ketahuan sebagai error TypeScript di frontend.
+- Frontend memakai klien `fetch` tipis (`useApi`) dan skema dari `packages/shared`. Hono RPC tidak dipakai, karena route didaftarkan lewat satu helper yang menyatukan validasi, OpenAPI, dan format respons.
 - Middleware, format error, paginasi, storage driver, mailer, dan helper kripto ditulis sekali di `apps/api/src/shared`.
 - Frontend memakai struktur yang sama: `apps/web/src/features/<fitur>` (halaman, komponen, store, panggilan API), komponen UI bersama di `src/components/ui` (Button, DataTable, StatusBadge, FileUpload, Modal), dan composable seperti `usePagination` serta `useUrlFilters`.
 
@@ -349,7 +349,7 @@ Kebutuhan dikelompokkan per modul. Setiap ID dipakai lagi di checklist pengujian
 | --- | --- | --- |
 | AK-01 | Daftar akun | Isian NIK, nama, email, no. HP, password, data profil. NIK 16 digit angka. NIK atau email yang sudah dipakai ditolak dengan pesan jelas. Password minimal 8 karakter. Akun dibuat belum terverifikasi dan OTP dikirim. |
 | AK-02 | Verifikasi email dengan OTP | Kode 6 digit, berlaku 10 menit, maksimal 5 percobaan. Kirim ulang paling cepat 60 detik sekali. Berhasil → `email_verified_at` terisi dan pendaftar langsung masuk. |
-| AK-03 | Login | Email + password. Akun belum terverifikasi diarahkan ke halaman OTP. 5 kali gagal dalam 15 menit → diblok sementara. |
+| AK-03 | Login | Satu halaman untuk semua akun: email (pendaftar) atau username (staff) + password. Sistem memilah jenis akun dan mengarahkan ke `/me` atau `/admin`. Pesan gagal sama untuk semua akun. Akun belum terverifikasi diarahkan ke halaman OTP. 5 kali gagal dalam 15 menit → diblok sementara. |
 | AK-04 | Lupa password | OTP reset dikirim ke email. Setelah password diganti, semua sesi lama dicabut. |
 | AK-05 | Kelola profil | Semua data profil bisa diubah kecuali NIK. Ganti email → OTP ke email baru; email lama tetap berlaku sampai verifikasi selesai. Ganti password memerlukan password lama. |
 
@@ -379,7 +379,7 @@ Kebutuhan dikelompokkan per modul. Setiap ID dipakai lagi di checklist pengujian
 | --- | --- | --- |
 | MP-01 | Daftar pendaftar | Paginasi di server, 20 baris per halaman. Kolom: nomor, nama, NIK tersamar (`3527********0001`), event, program, status, tanggal submit, penanda "berkas diperbarui" (ada dokumen dengan `replaced_at` terisi). |
 | MP-02 | Cari dan filter | Cari nama, nomor registrasi, NIK, email. Filter event, status, program, rentang tanggal. Filter tersimpan di URL sehingga bisa dibagikan dan bertahan saat refresh. |
-| MP-03 | Detail pendaftar | Profil lengkap dengan NIK utuh, pratinjau dokumen (gambar dan PDF) dan unduh, riwayat status, dan log aktivitas khusus pendaftar itu (termasuk verifikasi dokumen). Operator dan admin sama-sama melihatnya. |
+| MP-03 | Detail pendaftar | Profil lengkap dengan NIK utuh, dokumen dengan urutan tetap menurut nama, pratinjau dokumen (gambar dan PDF) dan unduh, riwayat status, dan log aktivitas khusus pendaftar itu (termasuk verifikasi dokumen). Operator dan admin sama-sama melihatnya. |
 | MP-04 | Verifikasi dokumen | Hanya saat `UNDER_REVIEW` atau `WAITING_LIST`. Setiap file ditandai `VALID` atau `INVALID` dengan catatan. `INVALID` mengirim email ke pendaftar agar mengganti berkas; file pengganti kembali `PENDING` dengan penanda "diperbarui". |
 | MP-05 | Ubah status | Hanya transisi sah (6.5) yang tampil sebagai tombol; tombol yang syaratnya belum terpenuhi (dokumen belum `VALID`, kuota penuh) tampil nonaktif dengan alasannya. Catatan wajib untuk penolakan. Bila data berubah sejak halaman dibuka, aksi ditolak dengan pesan untuk memuat ulang (6.7). |
 | MP-06 | Jejak perubahan | Setiap perubahan status menulis riwayat, activity log, dan email notifikasi ke outbox. |
@@ -461,6 +461,10 @@ Khusus `STORAGE_DRIVER=local`: `PUT /uploads/:token` dan `GET /files/:token` men
 | POST | `/admin/participants/:id/verify` | Staff | Verifikasi akun manual |
 | GET · POST · PATCH | `/admin/events`, `/admin/events/:id` | Admin | Kelola event |
 | GET · POST · PATCH | `/admin/events/:id/programs` | Admin | Kelola program |
+| DELETE | `/admin/events/:id/programs/:programId` | Admin | Hapus program yang belum dipilih pendaftar (EV-02) |
+| PATCH | `/admin/registrations/:id/program` | Admin | Pindah program (6.4) |
+| GET | `/admin/event-options` | Staff | Pilihan event dan program untuk filter, juga untuk operator |
+| GET | `/admin/auth/me` | Staff | Staff yang sedang masuk |
 | PUT | `/admin/events/:id/document-requirements` | Admin | Ganti daftar syarat dokumen |
 | GET · POST · PATCH | `/admin/document-types` | Admin | Master jenis dokumen |
 | GET · POST · PATCH | `/admin/staff` | Admin | Kelola staff; `POST /admin/staff/:id/reset-password` |
@@ -502,7 +506,7 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 | Daftar akun | `/register` | Form akun + profil | — |
 | Verifikasi OTP | `/verify` | Input 6 digit, kirim ulang dengan hitung mundur | — |
 | Login, lupa password | `/login`, `/forgot-password` |  | — |
-| Pendaftaran saya | `/me` | Kartu per pendaftaran: status, riwayat, catatan | Cek Status |
+| Pendaftaran saya | `/me` | Kartu per pendaftaran: status, riwayat, catatan; di bawahnya event yang masih buka dan belum didaftari | Cek Status |
 | Form pendaftaran | `/me/registrations/:id` | Wizard: pilih program → unggah dokumen → tinjau → submit | Formulir Pendaftaran |
 | Bukti pendaftaran | `/me/registrations/:id/receipt` | Layout siap cetak | — |
 | Profil | `/me/profile` | Ubah profil, email, password | — |
@@ -533,7 +537,7 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 
 ### Struktur komponen frontend
 
-Komponen dibuat sekali lalu dipanggil di semua halaman. Tampilan seluruhnya milik sendiri (Tailwind + token palet); hanya *perilaku* komponen interaktif yang sulit (fokus, keyboard, ARIA, posisi popup) yang memakai primitive headless Reka UI, tanpa gaya bawaan.
+Komponen dibuat sekali lalu dipanggil di semua halaman. Tampilan seluruhnya milik sendiri (Tailwind + token palet); hanya *perilaku* komponen interaktif yang sulit (fokus, keyboard, ARIA, posisi popup) yang memakai primitive headless Reka UI, tanpa gaya bawaan. Saat ini Reka UI dipakai untuk Dialog dan Toast; Select memakai elemen bawaan browser karena lebih nyaman di HP, dan komponen lain dibuat bila ada halaman yang membutuhkannya.
 
 ```
 apps/web/src/
@@ -543,7 +547,7 @@ apps/web/src/
                Tooltip, Toast                                       (Reka UI + gaya sendiri)
     form/      FormField, NikInput, DateInput, FileUpload
     data/      DataTable, Pagination, StatusBadge, StatCard, EmptyState
-  layouts/     PublicLayout, ParticipantLayout, AdminLayout
+  layouts/     PublicLayout (publik dan pendaftar, menu atas), AdminLayout (sidebar)
   composables/ useApi, useAuth, usePagination, useUrlFilters,
                useConfirm, useToast, useFileUpload
   utils/       formatTanggalWIB, maskNik, formatBytes
@@ -673,7 +677,7 @@ Backend dikerjakan lebih dulu sampai seluruh alur bisa diuji lewat `/docs`, lalu
 
 Variabel `.env`: `DATABASE_URL`, `APP_KEY`, `APP_URL`, `RUN_WORKER`, `STORAGE_DRIVER`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `SEED_ADMIN_PASSWORD`.
 
-Langkah instalasi: salin `.env.example`, `docker compose up -d`, jalankan script init RustFS (buat bucket dan access key khusus aplikasi, ganti kredensial default), lalu `bun run db:migrate` dan `bun run db:seed`.
+Langkah instalasi ada di `README.md`: salin `.env.example` dan isi nilai rahasianya, `docker compose --profile dev up -d --build`, lalu jalankan skrip `init-storage`, `migrate`, dan `seed` di container `api`. Kredensial RustFS diambil dari `.env` dengan nilai acak, bukan bawaan; access key khusus aplikasi belum dibuat.
 
 ### Pengujian otomatis (`bun test`)
 
