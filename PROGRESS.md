@@ -13,9 +13,9 @@ Acuan: `PRD — Sistem Pendaftaran Multi-Event.md`, urutan tahap dari bagian 12.
 | 5 | Verifikasi | Selesai |
 | 6 | Notifikasi | Selesai |
 | 7 | Laporan | Selesai |
-| 8 | Frontend publik dan pendaftar | Berjalan |
-| 9 | Frontend admin | Belum |
-| 10 | Penutup | Belum |
+| 8 | Frontend publik dan pendaftar | Selesai |
+| 9 | Frontend admin | Selesai |
+| 10 | Penutup | Selesai, kecuali pembekuan tag RustFS (dilakukan H-1) |
 
 ## Log
 
@@ -55,3 +55,41 @@ Penyimpangan kecil dari PRD:
 - **Access key khusus aplikasi belum dibuat.** `S3_ACCESS_KEY` adalah kredensial root RustFS, tapi nilainya acak dan sudah bukan bawaan.
 - **Tambahan di luar daftar API PRD:** `GET /admin/auth/me`, `GET /admin/event-options` (filter untuk operator), `PATCH /admin/registrations/:id/program` (pindah program, PRD 6.4), `DELETE /admin/events/:id/programs/:programId` (EV-02).
 - **Middleware sesi ada di modul `auth`**, bukan `shared/http`, karena perlu tabel `sessions`.
+
+### 31 Okt 2026 — Tahap 8–10: frontend dan penutup
+
+- 22 halaman Vue: publik, pendaftar (dioptimalkan untuk 360 px), dan panel panitia.
+- Dockerfile, Compose lengkap, lint batas modul, README, skrip checklist demo `e2e/demo-checklist.mjs`.
+
+Hasil verifikasi terakhir:
+
+| Pemeriksaan | Hasil |
+| --- | --- |
+| `bun test` (Postgres + RustFS sungguhan) | 46 lolos, 0 gagal |
+| Checklist demo PRD di browser Chromium, lewat Nginx | 20 dari 20 langkah lolos |
+| Presigned URL lewat Nginx dengan alamat IP | Lolos semua |
+| Daftar pendaftar dengan filter, 10.000 data | Maksimal 43 ms (target 500 ms) |
+| `tsc`, `vue-tsc`, `eslint` batas modul | Bersih; pelanggaran sengaja tertangkap |
+| Warna grafik `#2563EB`, validator palet | Lolos |
+
+Bug yang ditemukan lewat uji browser dan lint, sudah diperbaiki:
+
+- Mengetik jenis dokumen yang sudah ada di master gagal 409 dan tidak mencentangnya. Sekarang langsung tercentang.
+- Institusi dan pendidikan kosong tersimpan sebagai string kosong, sehingga tampil kosong, bukan "—".
+- Tombol status berbahasa Inggris. Sekarang Mulai tinjau, Terima, Tolak, Waiting List.
+- Grafik harian bergelombang palsu karena smoothing. Sekarang garis lurus antar titik.
+- Header COOP memicu peringatan di HTTP. Sekarang hanya aktif saat HTTPS.
+- `settings.routes` melanggar arah dependensi. Dipindah ke lapisan perakitan `apps/api/src/settings.routes.ts`.
+
+Penyimpangan tambahan dari PRD:
+
+- **Reka UI hanya dipakai untuk Dialog dan Toast.** Select memakai elemen bawaan browser karena lebih nyaman di HP. Tabs, Tooltip, Combobox, dan DropdownMenu belum diperlukan oleh halaman mana pun.
+- **`ParticipantLayout` digabung ke `PublicLayout`**, karena isinya sama.
+
+Belum teruji:
+
+- Pengiriman lewat Gmail sungguhan. Yang diuji hanya SMTP ke Mailpit.
+- HTTPS, dan worker sebagai container terpisah.
+- Driver `local` hanya diuji lewat `bun test`, tidak lewat Nginx.
+
+Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.

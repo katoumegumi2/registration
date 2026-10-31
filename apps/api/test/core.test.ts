@@ -8,7 +8,6 @@ import { notifications } from "../src/modules/notifications/notifications.table"
 import { db, pg } from "../src/shared/db/client";
 import { authService } from "../src/modules/auth";
 import { useStorage } from "../src/shared/storage";
-import { hmac } from "../src/shared/crypto";
 import { Client, draftWithDocs, EXE, makeEvent, makeParticipant, makeStaff, nextNik, outboxFor, PDF, PNG, profile, putTo, resetDb, upload } from "./helpers";
 
 let admin: Awaited<ReturnType<typeof makeStaff>>;
@@ -580,5 +579,35 @@ describe("worker outbox", () => {
   }, 60_000);
 });
 
-// Mencegah peringatan impor tak terpakai bila test dipersempit saat debugging.
-void hmac;
+describe("kinerja", () => {
+  test("daftar pendaftar dengan filter di bawah 500 ms pada 10.000 data", async () => {
+    const ev = await makeEvent({ mode: "SELECTION", quota: null });
+    await db.execute(sql`
+      with p as (
+        insert into participants (id, nik, full_name, gender, birth_place, birth_date, email, phone, address, password_hash)
+        select gen_random_uuid(), lpad((9000000000000000 + g)::text, 16, '0'), 'Peserta ' || g, 'L', 'Sampang', '2000-01-01', 'massal' || g || '@contoh.local', '081234567890', 'Jl. Uji', 'x'
+        from generate_series(1, 10000) g
+        returning id, nik
+      )
+      insert into registrations (id, registration_number, participant_id, event_id, status, submitted_at)
+      select gen_random_uuid(), 'MSL-2026-' || nik, id, ${ev.id}, (array['SUBMITTED','UNDER_REVIEW','ACCEPTED','REJECTED'])[1 + (nik::bigint % 4)], now() - (nik::bigint % 30) * interval '1 day'
+      from p`);
+    await db.execute(sql`analyze participants`);
+    await db.execute(sql`analyze registrations`);
+    const paths = [
+      `/admin/registrations?event_id=${ev.id}`,
+      `/admin/registrations?event_id=${ev.id}&status=ACCEPTED&page=50`,
+      `/admin/registrations?q=Peserta%20777`,
+      `/admin/registrations?q=massal500&status=SUBMITTED`,
+      `/admin/registrations?from=2026-01-01&to=2030-01-01&page=200`,
+    ];
+    for (const path of paths) {
+      const t = performance.now();
+      const r = await operator.client.get(path);
+      const ms = performance.now() - t;
+      expect(r.status).toBe(200);
+      console.log(`${Math.round(ms)} ms  ${path.replace(ev.id, "<event>")}`);
+      expect(ms).toBeLessThan(500);
+    }
+  }, 60_000);
+});

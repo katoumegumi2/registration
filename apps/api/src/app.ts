@@ -5,7 +5,7 @@ import { secureHeaders } from "hono/secure-headers";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { sql } from "drizzle-orm";
-import { config } from "./shared/config";
+import { config, isHttps } from "./shared/config";
 import { db } from "./shared/db/client";
 import { ApiError } from "./shared/http/errors";
 import { createApp, type AppContext } from "./shared/http/route";
@@ -20,7 +20,7 @@ import { registrationService } from "./modules/registrations";
 import { registerRegistrationRoutes } from "./modules/registrations/registrations.routes";
 import { registerReportRoutes } from "./modules/reports/reports.routes";
 import { registerReviewRoutes } from "./modules/review/review.routes";
-import { registerSettingsRoutes } from "./modules/settings/settings.routes";
+import { registerSettingsRoutes } from "./settings.routes";
 import { registerStaffRoutes } from "./modules/staff/staff.routes";
 
 let listenersRegistered = false;
@@ -48,7 +48,7 @@ export function buildApp() {
       console.log(JSON.stringify({ t: new Date().toISOString(), method: c.req.method, route: c.req.routePath, status: c.res.status, ms: Math.round(performance.now() - start) }));
     }
   });
-  root.use("*", secureHeaders({ referrerPolicy: "same-origin" }));
+  root.use("*", secureHeaders({ referrerPolicy: "same-origin", crossOriginOpenerPolicy: isHttps, originAgentCluster: isHttps }));
   root.use("/api/*", cors({ origin: appOrigin, credentials: true }));
 
   // CSRF: SameSite + pengecekan Origin pada setiap request yang mengubah data (PRD 11).

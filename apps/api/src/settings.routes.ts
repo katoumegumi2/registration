@@ -1,11 +1,12 @@
+// Route pengaturan dan outbox butuh auth dan notifications, jadi dirakit di luar modul settings (PRD aturan 3).
 import { z } from "@hono/zod-openapi";
-import { db } from "../../shared/db/client";
-import { emit } from "../../shared/events/bus";
-import { ApiError } from "../../shared/http/errors";
-import { pageQuery, route, staffMeta, type App } from "../../shared/http/route";
-import { adminOnly } from "../auth";
-import { notificationService } from "../notifications";
-import { settingsService } from ".";
+import { db } from "./shared/db/client";
+import { emit } from "./shared/events/bus";
+import { ApiError } from "./shared/http/errors";
+import { pageQuery, route, staffMeta, type App } from "./shared/http/route";
+import { adminOnly } from "./modules/auth";
+import { notificationService } from "./modules/notifications";
+import { settingsService } from "./modules/settings";
 
 const emailSchema = z.object({
   preset: z.enum(["GMAIL", "DOMAIN", "CUSTOM"]),

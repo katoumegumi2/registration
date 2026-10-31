@@ -24,8 +24,8 @@ const profileColumns = (p: ProfileInput) => ({
   birthDate: p.birth_date,
   phone: p.phone,
   address: p.address,
-  institution: p.institution ?? null,
-  educationLevel: p.education_level ?? null,
+  institution: p.institution?.trim() || null,
+  educationLevel: p.education_level?.trim() || null,
 });
 
 export const toProfile = (p: Participant) => ({

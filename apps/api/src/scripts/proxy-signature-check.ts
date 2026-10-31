@@ -39,7 +39,7 @@ const noSig = new URL(putUrl);
 results.anon_get_expect_403 = (await fetch(`${noSig.origin}${noSig.pathname}`)).status;
 
 const wrongHost = new URL(pub.presign(key, { method: "GET", expiresIn: 300 }));
-wrongHost.host = wrongHost.host.replace("localhost", "127.0.0.1");
+wrongHost.hostname = wrongHost.hostname === "127.0.0.1" ? "localhost" : "127.0.0.1";
 results.wrong_host_expect_403 = (await fetch(wrongHost)).status;
 
 await fetch(pub.presign(key, { method: "DELETE", expiresIn: 300 }), { method: "DELETE" });

@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+/* Palet dari spesifikasi (PRD 9) */
+@theme {
+  --color-navy: #142d4e;
+  --color-primary: #2563eb;
+  --color-primary-light: #eff6ff;
+  --color-background: #f8fafc;
+}
+
+html, body { background: var(--color-background); color: #0f172a; }
+
+@media print {
+  .no-print { display: none !important; }
+  html, body { background: #fff; }
+  @page { size: A4; margin: 15mm; }
+}

@@ -145,7 +145,7 @@ const pmbReq = [types["KTP"]!, types["Ijazah"]!, types["Pas Foto"]!];
 let seq = 0;
 for (const [i, status] of pmbPlan.entries()) {
   if (status !== "DRAFT") seq++;
-  await seedRegistration({ participantId: participantIds[i]!, eventId: pmbId, prefix: "PMB", seq, status, programId: prodi[i % prodi.length]!.id, requirementIds: pmbReq, daysAgo: 28 - i * 2 });
+  await seedRegistration({ participantId: participantIds[i]!, eventId: pmbId, prefix: "PMB", seq, status, programId: prodi[i % prodi.length]!.id, requirementIds: pmbReq, daysAgo: [28, 27, 27, 25, 24, 24, 22, 21, 19, 19, 18, 16, 14, 13][i]! });
 }
 await db.update(events).set({ lastSeq: seq }).where(eq(events.id, pmbId));
 
@@ -153,7 +153,7 @@ seq = 0;
 for (const [i, status] of semPlan.entries()) {
   if (status !== "DRAFT") seq++;
   // Akun yang sama boleh ikut dua event: 6 pendaftar pertama seminar juga pendaftar PMB.
-  await seedRegistration({ participantId: participantIds[i < 6 ? i : i + 8]!, eventId: semId, prefix: "SEM", seq, status, programId: null, requirementIds: [types["KTP"]!], daysAgo: 18 - i * 2 });
+  await seedRegistration({ participantId: participantIds[i < 6 ? i : i + 8]!, eventId: semId, prefix: "SEM", seq, status, programId: null, requirementIds: [types["KTP"]!], daysAgo: [18, 18, 17, 15, 13, 12, 12, 9, 8, 6][i]! });
 }
 await db.update(events).set({ lastSeq: seq }).where(eq(events.id, semId));
 
