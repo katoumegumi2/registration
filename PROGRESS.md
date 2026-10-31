@@ -100,3 +100,8 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 - Landing dirombak: hero dengan kartu gradien dan lingkaran konsentris, tile event, pita lime berisi 4 langkah. Isi kartu hero diambil dari event sungguhan. Logo dan merek pada gambar referensi tidak ditiru.
 - Top nav dipertahankan untuk halaman publik dan pendaftar, karena pendaftar dioptimalkan untuk HP.
 - **Palet spesifikasi dosen (navy-biru) diganti** atas permintaan pengguna, dan PRD bagian 1, 4, dan 9 sudah disesuaikan. Warna badge status tetap sesuai PRD. Semua warna ada di `apps/web/src/styles.css`.
+
+### 1 Nov 2026 — Jalan ke pendaftaran event dari halaman pendaftar
+
+- Temuan pengguna: setelah login, halaman `/me` tidak punya jalan menuju daftar event.
+- Perbaikan: menu **Event** di header, dan bagian **Event yang bisa didaftar** di `/me`. Lebar isi halaman disamakan dengan header.

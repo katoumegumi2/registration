@@ -12,6 +12,10 @@ defineEmits<{ retry: [] }>();
     <p class="mb-3 text-sm text-red-800"><i class="fa-solid fa-circle-exclamation mr-1" aria-hidden="true" />{{ error }}</p>
     <Button variant="secondary" size="sm" @click="$emit('retry')">Coba lagi</Button>
   </div>
-  <div v-else-if="empty" class="py-12 text-center text-slate-500"><i class="fa-regular fa-folder-open mb-2 block text-2xl" aria-hidden="true" />{{ emptyText ?? "Belum ada data." }}</div>
+  <div v-else-if="empty" class="py-12 text-center text-slate-500">
+    <div class="mb-2 text-3xl"><i class="fa-regular fa-folder-open" aria-hidden="true" /></div>
+    {{ emptyText ?? "Belum ada data." }}
+    <div v-if="$slots.action" class="mt-4"><slot name="action" /></div>
+  </div>
   <slot v-else />
 </template>

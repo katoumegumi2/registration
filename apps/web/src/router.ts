@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/:pathMatch(.*)*", redirect: "/" },
 ];
 
-export const router = createRouter({ history: createWebHistory(), routes, scrollBehavior: () => ({ top: 0 }) });
+export const router = createRouter({ history: createWebHistory(), routes, scrollBehavior: (to) => (to.hash ? { el: to.hash } : { top: 0 }) });
 
 // Hanya untuk kenyamanan; hak akses sebenarnya dicek di backend (PRD 3).
 router.beforeEach(async (to) => {

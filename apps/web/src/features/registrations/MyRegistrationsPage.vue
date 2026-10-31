@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import EventCard from "@/features/events/EventCard.vue";
 import AsyncState from "@/components/data/AsyncState.vue";
 import StatusBadge from "@/components/data/StatusBadge.vue";
 import Card from "@/components/ui/Card.vue";
@@ -8,6 +9,7 @@ import { formatTanggalWIB } from "@/utils/format";
 import { STATUS_LABELS, canReplaceDocument } from "@pendaftaran/shared";
 
 const rows = ref<any[]>([]);
+const events = ref<any[]>([]);
 const loading = ref(true);
 const error = ref("");
 
@@ -15,7 +17,7 @@ async function load() {
   loading.value = true;
   error.value = "";
   try {
-    rows.value = await api.get("/me/registrations");
+    [rows.value, events.value] = await Promise.all([api.get("/me/registrations"), api.get("/events")]);
   } catch (e) {
     error.value = errorMessage(e);
   } finally {
@@ -24,12 +26,16 @@ async function load() {
 }
 onMounted(load);
 
+// Event yang masih bisa didaftar dan belum punya pendaftaran dari akun ini.
+const available = computed(() => events.value.filter((e) => e.is_open && !rows.value.some((r) => r.event.id === e.id)));
+
 const toFix = (r: any) => r.documents.filter((d: any) => d.verification_status === "INVALID" && canReplaceDocument(r.status, "INVALID"));
 </script>
 
 <template>
   <h1 class="mb-4 text-2xl font-bold text-ink">Pendaftaran Saya</h1>
-  <AsyncState :loading="loading" :error="error" :empty="!rows.length" empty-text="Anda belum mendaftar ke event mana pun." @retry="load">
+  <AsyncState :loading="loading" :error="error" @retry="load">
+    <p v-if="!rows.length" class="rounded-3xl bg-white p-5 text-sm text-slate-600">Anda belum mendaftar ke event mana pun. Pilih event di bawah untuk mulai mendaftar.</p>
     <div class="space-y-4">
       <Card v-for="r in rows" :key="r.id">
         <div class="flex flex-wrap items-start justify-between gap-2">
@@ -61,5 +67,12 @@ const toFix = (r: any) => r.documents.filter((d: any) => d.verification_status =
         </div>
       </Card>
     </div>
+    <section class="mt-8">
+      <h2 class="mb-3 text-xl font-semibold text-ink">Event yang bisa didaftar</h2>
+      <div v-if="available.length" class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4">
+        <EventCard v-for="(e, i) in available" :key="e.id" :event="e" :index="i" />
+      </div>
+      <p v-else class="text-sm text-slate-600">Tidak ada event lain yang sedang dibuka.</p>
+    </section>
   </AsyncState>
 </template>
