@@ -219,6 +219,7 @@ await step("MP-03–06 + 6.6: dokumen INVALID, email, pendaftar ganti berkas, pe
 
   await p.goto("/me");
   await p.getByText("Berkas perlu diganti:").waitFor();
+  await p.getByText("Panitia meminta 1 dokumen diganti").first().waitFor();
   await p.goto(pmbRegUrl);
   const ktp = p.getByRole("listitem").filter({ hasText: "KTP" });
   if (await ktp.locator("input[type=file]").count()) throw new Error("file KTP seharusnya terkunci");
@@ -271,6 +272,7 @@ await step("6.2: kuota seleksi penuh, Terima terkunci, pendaftar dipindah ke Wai
 await step("PE-07: pendaftar melihat status dan riwayat di Pendaftaran Saya", async () => {
   await p.goto("/me");
   await p.getByText("Accepted").first().waitFor();
+  await p.getByText("Selamat, pendaftaran Anda diterima.").first().waitFor();
   await p.getByText("Riwayat status").first().click();
   await p.getByText(/WIB/).first().waitFor();
   await noOverflow(p, "pendaftaran saya");

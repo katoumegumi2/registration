@@ -135,3 +135,8 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 
 - Mengikuti referensi pengguna, dengan data sungguhan: banner sambutan, 4 kartu ringkasan, antrean verifikasi, event yang buka, kalender tenggat, jumlah per status, program terbanyak, pendaftaran terbaru, dan peringatan email gagal khusus admin.
 - Donut dan grafik bertumpuk seperti di referensi tidak dipakai: validator palet menolak lima warna status (biru dan ungu ΔE 0,4 bagi pembaca buta warna). Status memakai bar satu warna, dengan badge dan angka di tiap baris.
+
+### 1 Nov 2026 — Indikator tahapan untuk peserta
+
+- Permintaan pengguna: alur pendaftaran terlihat oleh peserta. Ditambahkan indikator 4 tahap di `/me` dan halaman pendaftaran: Lengkapi berkas, Terkirim, Ditinjau panitia, Hasil. Tiap tahap menampilkan waktu, dan ada satu kalimat tentang apa yang terjadi atau harus dilakukan.
+- Contoh yang diberikan pengguna (URL di jaringan lokal) tidak bisa dibuka karena butuh URL lengkap dengan `?key=`, jadi belum dibandingkan.

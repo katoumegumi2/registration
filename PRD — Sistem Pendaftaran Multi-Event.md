@@ -363,7 +363,7 @@ Kebutuhan dikelompokkan per modul. Setiap ID dipakai lagi di checklist pengujian
 | PE-04 | Unggah dan ganti dokumen | Per jenis dokumen, sesuai aturan 6.6. Progres unggah terlihat. Semua file bisa diganti selama `DRAFT`/`SUBMITTED`; setelah itu hanya file yang ditandai `INVALID`. File salah format atau lebih dari 5 MB ditolak dengan pesan jelas. |
 | PE-05 | Submit | Dokumen wajib lengkap dan program terpilih bila diperlukan. Periode dan kuota dicek di server dalam transaksi. Berhasil → nomor registrasi, status `SUBMITTED`, email bukti masuk outbox. Kuota penuh → pesan jelas, draft tetap ada. |
 | PE-06 | Bukti pendaftaran | Nomor registrasi, event, program, data ringkas pendaftar, daftar dokumen, waktu submit. Bisa dicetak atau disimpan PDF dari browser. |
-| PE-07 | Pendaftaran saya (cek status) | Semua pendaftaran milik akun, status terkini, riwayat status dengan waktu, catatan verifikasi, dan dokumen yang perlu diganti beserta catatannya. |
+| PE-07 | Pendaftaran saya (cek status) | Semua pendaftaran milik akun, indikator tahapan (lengkapi berkas, terkirim, ditinjau, hasil) dengan waktu dan kalimat langkah berikutnya, status terkini, riwayat status dengan waktu, catatan verifikasi, dan dokumen yang perlu diganti beserta catatannya. |
 
 ### Dashboard admin (DA)
 

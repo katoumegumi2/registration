@@ -13,6 +13,7 @@ import Card from "@/components/ui/Card.vue";
 import { api, errorMessage } from "@/composables/useApi";
 import { useConfirm, useToast } from "@/composables/useFeedback";
 import { formatBytes } from "@/utils/format";
+import RegistrationProgress from "./RegistrationProgress.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -114,6 +115,8 @@ async function submit() {
         </div>
         <StatusBadge :status="reg.status" />
       </div>
+
+      <Card v-if="!isDraft" class="mb-4"><RegistrationProgress :registration="reg" /></Card>
 
       <!-- Wizard saat draft -->
       <template v-if="isDraft">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import EventCard from "@/features/events/EventCard.vue";
+import RegistrationProgress from "./RegistrationProgress.vue";
 import AsyncState from "@/components/data/AsyncState.vue";
 import StatusBadge from "@/components/data/StatusBadge.vue";
 import Card from "@/components/ui/Card.vue";
@@ -45,6 +46,7 @@ const toFix = (r: any) => r.documents.filter((d: any) => d.verification_status =
           </div>
           <StatusBadge :status="r.status" />
         </div>
+        <RegistrationProgress class="mt-4" :registration="r" />
         <p v-if="r.verification_notes" class="mt-3 rounded-lg bg-primary-light p-3 text-sm"><strong>Catatan panitia:</strong> {{ r.verification_notes }}</p>
         <div v-if="toFix(r).length" class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm" role="status">
           <p class="font-medium text-red-800"><i class="fa-solid fa-triangle-exclamation mr-1" aria-hidden="true" />Berkas perlu diganti:</p>
