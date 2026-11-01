@@ -505,7 +505,7 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 | Detail event | `/events/:slug` | Jadwal, kuota, program, syarat dokumen, tombol daftar | — |
 | Daftar akun | `/register` | Form akun + profil | — |
 | Verifikasi OTP | `/verify` | Input 6 digit, kirim ulang dengan hitung mundur | — |
-| Login, lupa password | `/login`, `/forgot-password` |  | — |
+| Login, lupa password | `/login`, `/forgot-password` | Login: kartu dua panel tanpa header, ilustrasi hijau di kiri dan form di kanan; panel ilustrasi disembunyikan di HP | — |
 | Pendaftaran saya | `/me` | Kartu per pendaftaran: status, riwayat, catatan; di bawahnya event yang masih buka dan belum didaftari | Cek Status |
 | Form pendaftaran | `/me/registrations/:id` | Wizard: pilih program → unggah dokumen → tinjau → submit | Formulir Pendaftaran |
 | Bukti pendaftaran | `/me/registrations/:id/receipt` | Layout siap cetak | — |

@@ -10,7 +10,6 @@ const routes: RouteRecordRaw[] = [
       { path: "events/:slug", component: () => import("./features/events/EventDetailPage.vue") },
       { path: "register", component: () => import("./features/auth/RegisterPage.vue") },
       { path: "verify", component: () => import("./features/auth/VerifyPage.vue") },
-      { path: "login", component: () => import("./features/auth/LoginPage.vue") },
       { path: "forgot-password", component: () => import("./features/auth/ForgotPasswordPage.vue") },
       { path: "me", meta: { participant: true }, component: () => import("./features/registrations/MyRegistrationsPage.vue") },
       { path: "me/profile", meta: { participant: true }, component: () => import("./features/auth/ProfilePage.vue") },
@@ -18,6 +17,8 @@ const routes: RouteRecordRaw[] = [
       { path: "me/registrations/:id/receipt", meta: { participant: true }, component: () => import("./features/registrations/ReceiptPage.vue") },
     ],
   },
+  // Halaman login berdiri sendiri, tanpa header publik.
+  { path: "/login", component: () => import("./features/auth/LoginPage.vue") },
   // Alamat lama tetap berfungsi; login sekarang satu halaman.
   { path: "/admin/login", redirect: (to) => ({ path: "/login", query: to.query }) },
   {
