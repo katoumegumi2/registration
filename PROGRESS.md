@@ -146,3 +146,7 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 - PRD: halaman `/me` dan form, variabel `.env`, daftar test otomatis, dan checklist demo disesuaikan.
 - README: perintah uji presigned yang salah diperbaiki, cara menjalankan checklist di stack terpisah ditambahkan.
 - `.env.example`: variabel opsional ditambahkan.
+
+### 1 Nov 2026 — Halaman penjelasan untuk dosen
+
+- Ringkasan sistem, arsitektur, alur, pengujian, batasan, urutan demo, dan contoh pertanyaan. Salinan ada di `docs/penjelasan-sistem/index.html`.
