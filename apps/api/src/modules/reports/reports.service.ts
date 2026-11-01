@@ -1,10 +1,11 @@
-import { and, asc, desc, eq, gte, ilike, isNotNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, isNotNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import ExcelJS from "exceljs";
-import { maskNik, statusUsesSlot, type RegistrationStatus } from "@pendaftaran/shared";
+import { maskNik, statusUsesSlot, type RegistrationStatus, type StaffRole } from "@pendaftaran/shared";
 import { db, paginate } from "../../shared/db/client";
 // Pengecualian rule 8: reports boleh membaca lintas tabel untuk agregasi, tidak pernah menulis.
 import { documents } from "../documents/documents.table";
 import { eventPrograms, events } from "../events/events.table";
+import { notifications } from "../notifications/notifications.table";
 import { participants } from "../participants/participants.table";
 import { registrations } from "../registrations/registrations.table";
 
@@ -139,8 +140,8 @@ export async function xlsxBuffer(f: RegistrationFilters) {
 }
 
 // ---------- Dashboard ----------
-export async function dashboard(eventId?: string) {
-  const scope = eventId ? and(ne(registrations.status, "DRAFT"), eq(registrations.eventId, eventId))! : ne(registrations.status, "DRAFT");
+export async function dashboard(eventId: string | undefined, role: StaffRole) {
+  const scope: SQL = eventId ? and(ne(registrations.status, "DRAFT"), eq(registrations.eventId, eventId))! : ne(registrations.status, "DRAFT");
   const byStatus = await db.select({ status: registrations.status, n: sql<number>`count(*)::int` }).from(registrations).where(scope).groupBy(registrations.status);
   const scopeSql = eventId ? sql`and r.event_id = ${eventId}` : sql``;
   const daily = await db.execute<{ day: string; n: number }>(sql`
@@ -165,7 +166,49 @@ export async function dashboard(eventId?: string) {
     daily: [...daily],
     monthly: [...monthly],
     quotas: await openEventQuotas(),
+    queue: await queueRows(scope, "oldest"),
+    recent: await queueRows(scope, "newest"),
+    by_program: await topPrograms(scope),
+    // Outbox hanya untuk admin (PRD 3); operator tidak menerima angka ini.
+    failed_emails: role === "ADMIN" ? await failedEmails() : 0,
   };
+}
+
+/** Tanpa NIK dan email: dashboard hanya menampilkan yang perlu untuk bekerja. */
+async function queueRows(scope: SQL, mode: "oldest" | "newest") {
+  const base = db
+    .select({
+      id: registrations.id,
+      registration_number: registrations.registrationNumber,
+      status: registrations.status,
+      submitted_at: registrations.submittedAt,
+      full_name: participants.fullName,
+      event_name: events.name,
+      has_replaced_document: sql<boolean>`exists (select 1 from ${documents} where ${documents.registrationId} = ${registrations.id} and ${documents.replacedAt} is not null)`,
+    })
+    .from(registrations)
+    .innerJoin(participants, eq(participants.id, registrations.participantId))
+    .innerJoin(events, eq(events.id, registrations.eventId));
+  if (mode === "oldest") {
+    return base.where(and(scope, inArray(registrations.status, ["SUBMITTED", "UNDER_REVIEW"]))).orderBy(asc(registrations.submittedAt)).limit(6);
+  }
+  return base.where(scope).orderBy(desc(registrations.submittedAt)).limit(5);
+}
+
+async function topPrograms(scope: SQL) {
+  return db
+    .select({ program_id: eventPrograms.id, program: eventPrograms.name, n: sql<number>`count(*)::int` })
+    .from(registrations)
+    .innerJoin(eventPrograms, eq(eventPrograms.id, registrations.programId))
+    .where(scope)
+    .groupBy(eventPrograms.id, eventPrograms.name)
+    .orderBy(desc(sql`count(*)`), asc(eventPrograms.name))
+    .limit(5);
+}
+
+async function failedEmails() {
+  const [row] = await db.select({ n: sql<number>`count(*)::int` }).from(notifications).where(eq(notifications.status, "FAILED"));
+  return row!.n;
 }
 
 async function openEventQuotas() {
@@ -175,7 +218,8 @@ async function openEventQuotas() {
     rows.map(async (e) => {
       const counts = await db.select({ status: registrations.status, n: sql<number>`count(*)::int` }).from(registrations).where(eq(registrations.eventId, e.id)).groupBy(registrations.status);
       const used = counts.filter((c) => statusUsesSlot(c.status, e.quotaMode)).reduce((a, c) => a + c.n, 0);
-      return { event_id: e.id, name: e.name, quota_mode: e.quotaMode, quota: e.quota, used };
+      const submitted = counts.filter((c) => c.status !== "DRAFT").reduce((a, c) => a + c.n, 0);
+      return { event_id: e.id, name: e.name, quota_mode: e.quotaMode, quota: e.quota, used, submitted, end_at: e.endAt };
     }),
   );
 }

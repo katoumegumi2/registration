@@ -130,3 +130,8 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 ### 1 Nov 2026 — Font dan panel login diganti
 
 - Masukan pengguna: tampilan terasa "AI slop". Font Outfit diganti Schibsted Grotesk. Ilustrasi buatan sendiri di panel login dibuang, diganti tipografi besar dan daftar event sungguhan.
+
+### 1 Nov 2026 — Dashboard dilengkapi
+
+- Mengikuti referensi pengguna, dengan data sungguhan: banner sambutan, 4 kartu ringkasan, antrean verifikasi, event yang buka, kalender tenggat, jumlah per status, program terbanyak, pendaftaran terbaru, dan peringatan email gagal khusus admin.
+- Donut dan grafik bertumpuk seperti di referensi tidak dipakai: validator palet menolak lima warna status (biru dan ungu ΔE 0,4 bagi pembaca buta warna). Status memakai bar satu warna, dengan badge dan angka di tiap baris.

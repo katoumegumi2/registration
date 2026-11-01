@@ -372,6 +372,7 @@ Kebutuhan dikelompokkan per modul. Setiap ID dipakai lagi di checklist pengujian
 | DA-01 | Ringkasan | Total pendaftar dan jumlah per status, bisa difilter per event. Angka sama dengan hasil query di daftar pendaftar. |
 | DA-02 | Grafik | Pendaftaran per hari (30 hari terakhir) dan per bulan; jumlah per status. |
 | DA-03 | Kuota | Slot terpakai dibanding kuota untuk setiap event yang sedang buka. |
+| DA-04 | Antrean dan aktivitas | Antrean verifikasi dari yang terlama menunggu, pendaftaran terbaru, program terbanyak, dan kalender tenggat event. Tanpa NIK dan email. Admin melihat jumlah email gagal terkirim; operator tidak. |
 
 ### Manajemen pendaftar (MP)
 
@@ -516,7 +517,7 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 | Halaman | Route | Isi | Halaman dosen |
 | --- | --- | --- | --- |
 | Login staff | `/login`, sama dengan pendaftar; `/admin/login` dialihkan ke sana | Email atau username + password; sistem memilah jenis akun | Login Admin |
-| Dashboard | `/admin` | Kartu ringkasan, grafik, kuota event aktif | Dashboard Admin |
+| Dashboard | `/admin` | Banner sambutan, kartu ringkasan, grafik harian dan bulanan, antrean verifikasi, event yang buka dengan kuota, kalender tenggat, jumlah per status, program terbanyak, pendaftaran terbaru | Dashboard Admin |
 | Pendaftar | `/admin/registrations` | Tabel, cari, filter, export | Manajemen Pendaftar |
 | Detail pendaftar | `/admin/registrations/:id` | Profil, dokumen + pratinjau, verifikasi, tombol status, riwayat | Detail Pendaftar |
 | Event | `/admin/events`, `/admin/events/:id` | Daftar dan form event, program, syarat dokumen | Pengaturan Pendaftaran |

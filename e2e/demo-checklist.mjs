@@ -319,7 +319,7 @@ await step("EV-04: mode kuota terkunci pada event yang sudah ada pendaftar", asy
 
 await step("DA: dashboard dan grafik sesuai data daftar pendaftar", async () => {
   await a.goto("/admin");
-  await a.locator("canvas").nth(2).waitFor();
+  await a.locator("canvas").nth(1).waitFor();
   await a.waitForTimeout(1200);
   await a.screenshot({ path: OUT + "10-dashboard.png", fullPage: true });
   const stats = (await (await a.request.get(`${BASE}/api/v1/admin/dashboard/stats`)).json()).data;

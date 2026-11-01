@@ -574,6 +574,38 @@ describe("event, laporan, pengaturan", () => {
     expect(sum.data.registrants[0].nik_masked).toBeTruthy();
   });
 
+  test("dashboard lengkap: antrean terlama dulu, program, tanpa NIK, email gagal hanya untuk admin", async () => {
+    const ev = await makeEvent({ mode: "SELECTION", quota: 5, requiresProgram: true });
+    const prog = (await admin.client.post(`/admin/events/${ev.id}/programs`, { name: "Informatika" })).data;
+    const regs: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const p = await makeParticipant();
+      const id = await draftWithDocs(p, ev);
+      await p.client.patch(`/me/registrations/${id}`, { program_id: prog.id });
+      await p.client.post(`/me/registrations/${id}/submit`);
+      regs.push(id);
+    }
+    await operator.client.post(`/admin/registrations/${regs[1]}/transitions`, { to: "UNDER_REVIEW" });
+    await operator.client.post(`/admin/registrations/${regs[2]}/transitions`, { to: "UNDER_REVIEW" });
+    await markAllValid(regs[2]!);
+    await operator.client.post(`/admin/registrations/${regs[2]}/transitions`, { to: "ACCEPTED" });
+
+    const s = await operator.client.get(`/admin/dashboard/stats?event_id=${ev.id}`);
+    expect(s.data.queue.map((q: any) => q.id)).toEqual([regs[0], regs[1]]);
+    expect(s.data.recent[0].id).toBe(regs[2]);
+    expect(s.data.by_program).toEqual([{ program_id: prog.id, program: "Informatika", n: 3 }]);
+    const row = s.data.quotas.find((q: any) => q.event_id === ev.id);
+    expect(row.submitted).toBe(3);
+    expect(row.used).toBe(1);
+    expect(row.end_at).toBeTruthy();
+    expect(s.text).not.toMatch(/"nik"|"email"/);
+
+    await db.update(notifications).set({ status: "FAILED" }).where(sql`id = (select id from notifications limit 1)`);
+    expect((await admin.client.get("/admin/dashboard/stats")).data.failed_emails).toBeGreaterThan(0);
+    expect((await operator.client.get("/admin/dashboard/stats")).data.failed_emails).toBe(0);
+    await db.update(notifications).set({ status: "SENT" }).where(eq(notifications.status, "FAILED"));
+  });
+
   test("password SMTP tidak pernah dikirim ke frontend dan tersimpan terenkripsi; log tanpa rahasia", async () => {
     const body = { preset: "CUSTOM", host: "smtp.contoh.local", port: 587, security: "STARTTLS", username: "u", password: "sandi-smtp-rahasia", from_name: "Panitia", from_address: "u@contoh.local", reply_to: "" };
     expect((await admin.client.put("/admin/settings/email", body)).status).toBe(200);

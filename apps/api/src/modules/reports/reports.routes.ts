@@ -18,7 +18,7 @@ const filters = {
 };
 
 export function registerReportRoutes(app: App) {
-  route(app, { method: "get", path: "/admin/dashboard/stats", tag: "Staff", summary: "Ringkasan, grafik, kuota", middleware: staffOnly, query: z.object({ event_id: z.string().uuid().optional() }) }, async ({ query }) => reports.dashboard(query.event_id));
+  route(app, { method: "get", path: "/admin/dashboard/stats", tag: "Staff", summary: "Ringkasan, grafik, kuota", middleware: staffOnly, query: z.object({ event_id: z.string().uuid().optional() }) }, async ({ c, query }) => reports.dashboard(query.event_id, c.get("staff").role));
 
   // Didaftarkan sebelum /admin/registrations/{id}.
   route(app, { method: "get", path: "/admin/registrations/export", tag: "Staff", summary: "Export CSV atau Excel mengikuti filter", middleware: staffOnly, query: z.object({ format: z.enum(["csv", "xlsx"]), ...filters }) }, async ({ c, query }) => {
