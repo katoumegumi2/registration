@@ -507,8 +507,8 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 | Daftar akun | `/register` | Form akun + profil | — |
 | Verifikasi OTP | `/verify` | Input 6 digit, kirim ulang dengan hitung mundur | — |
 | Login, lupa password | `/login`, `/forgot-password` | Login: kartu dua panel tanpa header, panel hijau berisi judul dan event yang sedang dibuka di kiri, form di kanan; panel kiri disembunyikan di HP | — |
-| Pendaftaran saya | `/me` | Kartu per pendaftaran: status, riwayat, catatan; di bawahnya event yang masih buka dan belum didaftari | Cek Status |
-| Form pendaftaran | `/me/registrations/:id` | Wizard: pilih program → unggah dokumen → tinjau → submit | Formulir Pendaftaran |
+| Pendaftaran saya | `/me` | Kartu per pendaftaran: indikator tahapan, status, riwayat, catatan; di bawahnya event yang masih buka dan belum didaftari | Cek Status |
+| Form pendaftaran | `/me/registrations/:id` | Saat draft: wizard pilih program → unggah dokumen → tinjau → submit. Setelah submit: indikator tahapan dan daftar dokumen | Formulir Pendaftaran |
 | Bukti pendaftaran | `/me/registrations/:id/receipt` | Layout siap cetak | — |
 | Profil | `/me/profile` | Ubah profil, email, password | — |
 
@@ -676,7 +676,7 @@ Backend dikerjakan lebih dulu sampai seluruh alur bisa diuji lewat `/docs`, lalu
 | `rustfs` | `rustfs/rustfs:latest` → tag versi H-1 presentasi | Tidak dibuka; console lewat SSH tunnel |
 | `mailpit` | `axllent/mailpit` (profil dev) | 8025 (UI) saat development |
 
-Variabel `.env`: `DATABASE_URL`, `APP_KEY`, `APP_URL`, `RUN_WORKER`, `STORAGE_DRIVER`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `SEED_ADMIN_PASSWORD`.
+Variabel `.env`: `DATABASE_URL`, `APP_KEY`, `APP_URL`, `RUN_WORKER`, `STORAGE_DRIVER`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `SEED_ADMIN_PASSWORD`, `HTTP_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `LOCAL_STORAGE_DIR`. Opsional: `RUSTFS_TAG`, `SMTP_HOST_DOCKER`, `SMTP_PORT_DOCKER`, dan port host di `.env.example`.
 
 Langkah instalasi ada di `README.md`: salin `.env.example` dan isi nilai rahasianya, `docker compose --profile dev up -d --build`, lalu jalankan skrip `init-storage`, `migrate`, dan `seed` di container `api`. Kredensial RustFS diambil dari `.env` dengan nilai acak, bukan bawaan; access key khusus aplikasi belum dibuat.
 
@@ -699,19 +699,25 @@ Langkah instalasi ada di `README.md`: salin `.env.example` dan isi nilai rahasia
 - Semua transisi status yang tidak ada di tabel 6.5 ditolak `INVALID_TRANSITION`.
 - Operator bisa membaca log satu pendaftar tapi tidak bisa membuka log global; pendaftar tidak bisa membuka pendaftaran orang lain.
 - OTP kedaluwarsa dan OTP salah 5 kali ditolak.
+- Satu pintu login memilah pendaftar dan staff, sesinya terpisah, pesan gagal sama, dan login gagal 5 kali diblok untuk kedua jenis akun.
+- Urutan dokumen tetap setelah diverifikasi.
+- Dashboard: antrean dari yang terlama, tanpa NIK dan email, jumlah email gagal hanya untuk admin.
+- Daftar pendaftar dengan filter di bawah 500 ms pada 10.000 data.
 
 ### Checklist demo
 
-- [ ] Pendaftar baru daftar akun, menerima OTP, verifikasi, login (AK-01–AK-03)
+Otomatis lewat `e2e/demo-checklist.mjs` (20 langkah di browser, lihat README).
+
+- [ ] Pendaftar baru daftar akun, menerima OTP, verifikasi, login; admin masuk lewat halaman login yang sama (AK-01–AK-03)
 - [ ] Pendaftar membuka event seleksi, memilih program, mengunggah dokumen, submit, menerima email bukti (PE-03–PE-06)
 - [ ] Akun yang sama mendaftar ke event seminar FCFS tanpa mengisi profil ulang (6.4)
 - [ ] Event FCFS penuh: pendaftar berikutnya mendapat pesan kuota penuh (6.2)
 - [ ] Operator mencari pendaftar, membuka detail, memverifikasi dokumen, mengubah status; pendaftar menerima email (MP-01–MP-06)
 - [ ] Operator menandai satu dokumen `INVALID`, pendaftar menerima email lalu mengganti berkas, operator menerima pendaftar (MP-04, 6.6)
 - [ ] Kuota seleksi penuh: Terima terkunci, pendaftar dipindah ke Waiting List (6.2)
-- [ ] Pendaftar melihat status dan catatan di halaman Pendaftaran Saya (PE-07)
+- [ ] Pendaftar melihat indikator tahapan, status, dan catatan di halaman Pendaftaran Saya (PE-07)
 - [ ] Admin membuat event baru dengan syarat dokumen "Surat Persetujuan Desa" (EV-01, EV-03)
-- [ ] Dashboard dan grafik sesuai data; export Excel dan laporan cetak (DA, LP)
+- [ ] Dashboard, grafik, antrean verifikasi, dan kalender tenggat sesuai data; export Excel dan laporan cetak (DA, LP)
 - [ ] Admin mengganti pengaturan SMTP dan mengirim email uji (SS-04)
 - [ ] Activity log menampilkan semua aksi di atas (SS-03)
 

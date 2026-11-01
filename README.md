@@ -52,10 +52,18 @@ bun run dev:web      # port 5173, proxy /api ke 3000
 bun run test        # butuh postgres dan rustfs jalan; memakai database pendaftaran_test
 bun run typecheck
 bun run lint        # batas modul
-bun run --cwd apps/api src/scripts/proxy-signature-check.ts   # presigned URL lewat Nginx
+(cd apps/api && bun --env-file=../../.env src/scripts/proxy-signature-check.ts)   # presigned URL lewat Nginx
 ```
 
-Checklist demo di browser, berjalan terhadap stack yang sedang hidup dan mengubah datanya:
+Checklist demo di browser mengubah data (kuota terpakai, status berubah), jadi jalankan di stack terpisah supaya data utama aman. Salin `.env` ke `.env.e2e`, ubah `HTTP_PORT=8081`, `APP_URL` dan `S3_PUBLIC_ENDPOINT` ke port 8081, lalu isi port host lain (lihat bagian opsional di `.env.example`), misalnya `POSTGRES_HOST_PORT=55433`, `RUSTFS_HOST_PORT=59100`, `RUSTFS_CONSOLE_HOST_PORT=59101`, `MAILPIT_SMTP_HOST_PORT=51026`, `MAILPIT_UI_PORT=8026`.
+
+```bash
+C="docker compose -p pendaftaran-e2e --env-file .env.e2e --profile dev"
+$C up -d --build
+for s in init-storage migrate seed; do $C exec api bun apps/api/src/scripts/$s.ts; done
+```
+
+Jalankan checklist dengan `E2E_BASE` port 8081 dan `E2E_MAIL` port 8026, lalu buang stack-nya dengan `$C down -v`.
 
 ```bash
 cd e2e && npm i playwright && npx playwright install chromium

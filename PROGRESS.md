@@ -140,3 +140,9 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 
 - Permintaan pengguna: alur pendaftaran terlihat oleh peserta. Ditambahkan indikator 4 tahap di `/me` dan halaman pendaftaran: Lengkapi berkas, Terkirim, Ditinjau panitia, Hasil. Tiap tahap menampilkan waktu, dan ada satu kalimat tentang apa yang terjadi atau harus dilakukan.
 - Contoh yang diberikan pengguna (URL di jaringan lokal) tidak bisa dibuka karena butuh URL lengkap dengan `?key=`, jadi belum dibandingkan.
+
+### 1 Nov 2026 — Audit dokumentasi
+
+- PRD: halaman `/me` dan form, variabel `.env`, daftar test otomatis, dan checklist demo disesuaikan.
+- README: perintah uji presigned yang salah diperbaiki, cara menjalankan checklist di stack terpisah ditambahkan.
+- `.env.example`: variabel opsional ditambahkan.
