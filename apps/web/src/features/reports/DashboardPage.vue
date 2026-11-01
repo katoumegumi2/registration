@@ -11,7 +11,7 @@ import { api, errorMessage } from "@/composables/useApi";
 import { useUrlFilters } from "@/composables/useUrlFilters";
 
 Chart.register(BarElement, CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip);
-Chart.defaults.font.family = "'Outfit Variable', sans-serif";
+Chart.defaults.font.family = "'Schibsted Grotesk Variable', sans-serif";
 
 const PRIMARY = "#4E9A0C";
 const GRID = "#e2e8f0";

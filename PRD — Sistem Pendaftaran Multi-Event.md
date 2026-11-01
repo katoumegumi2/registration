@@ -104,7 +104,7 @@ Browser hanya bicara ke API, kecuali untuk berkas: API menerbitkan presigned URL
 | Cadangan storage | Disk lokal lewat `Bun.file` | Diaktifkan dengan `STORAGE_DRIVER=local` |
 | Email | nodemailer → Gmail SMTP (App Password) | Mailpit untuk development |
 | Frontend | Vue 3 + Vite + Pinia + Vue Router | SPA, dilayani oleh container API |
-| Styling | Tailwind CSS | Palet dijadikan token tema; font Outfit |
+| Styling | Tailwind CSS | Palet dijadikan token tema; font Schibsted Grotesk |
 | Grafik | Chart.js lewat vue-chartjs |  |
 | Ikon | Font Awesome (free) | Sesuai spesifikasi |
 | Export | exceljs (Excel), CSV stream | PDF lewat halaman cetak browser |
@@ -505,7 +505,7 @@ SPA Vue dengan dua area: publik/pendaftar yang dioptimalkan untuk HP (lebar mini
 | Detail event | `/events/:slug` | Jadwal, kuota, program, syarat dokumen, tombol daftar | — |
 | Daftar akun | `/register` | Form akun + profil | — |
 | Verifikasi OTP | `/verify` | Input 6 digit, kirim ulang dengan hitung mundur | — |
-| Login, lupa password | `/login`, `/forgot-password` | Login: kartu dua panel tanpa header, ilustrasi hijau di kiri dan form di kanan; panel ilustrasi disembunyikan di HP | — |
+| Login, lupa password | `/login`, `/forgot-password` | Login: kartu dua panel tanpa header, panel hijau berisi judul dan event yang sedang dibuka di kiri, form di kanan; panel kiri disembunyikan di HP | — |
 | Pendaftaran saya | `/me` | Kartu per pendaftaran: status, riwayat, catatan; di bawahnya event yang masih buka dan belum didaftari | Cek Status |
 | Form pendaftaran | `/me/registrations/:id` | Wizard: pilih program → unggah dokumen → tinjau → submit | Formulir Pendaftaran |
 | Bukti pendaftaran | `/me/registrations/:id/receipt` | Layout siap cetak | — |

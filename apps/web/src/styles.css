@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/schibsted-grotesk";
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 
 /*
@@ -7,7 +7,7 @@
  * Lime hanya untuk latar dengan teks gelap; sebagai teks kontrasnya tidak cukup, pakai primary.
  */
 @theme {
-  --font-sans: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --color-ink: #171a15;
   --color-primary: #2f7a0a;
   --color-primary-light: #e8f7c2;

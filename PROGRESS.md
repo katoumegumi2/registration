@@ -126,3 +126,7 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 
 - Mengikuti referensi kedua dari pengguna: kartu dua panel, ilustrasi di kiri, form dengan input bergaris bawah di kanan, warna hijau yang sudah dipakai. Ilustrasi digambar sendiri.
 - Login sosial dan "Remember me" tidak dibuat: SSO di luar lingkup PRD, dan masa sesi sudah tetap.
+
+### 1 Nov 2026 — Font dan panel login diganti
+
+- Masukan pengguna: tampilan terasa "AI slop". Font Outfit diganti Schibsted Grotesk. Ilustrasi buatan sendiri di panel login dibuang, diganti tipografi besar dan daftar event sungguhan.
