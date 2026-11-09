@@ -159,17 +159,14 @@ apps/api/src/
 | `review` | Use case staff: mulai tinjau, terima, tolak, waiting list, koreksi, verifikasi dokumen; menggabungkan cek dokumen dan kuota | Tidak ada |
 | `reports` | Dashboard, export, laporan | Tidak ada; hanya query baca |
 
-Isi satu modul, contoh `registrations`:
+Isi satu modul, contoh `registrations`. Event internal didefinisikan terpusat di `shared/events/bus.ts`, dan test ada di `apps/api/test`:
 
 ```
 modules/registrations/
   index.ts                    API publik: service + tipe yang boleh dipakai modul lain
   registrations.routes.ts     handler Hono + definisi OpenAPI
-  registrations.service.ts    use case: createDraft, submit, listMine
-  registrations.repository.ts query Drizzle, hanya ke tabel milik modul
+  registrations.service.ts    use case dan query Drizzle, hanya ke tabel milik modul
   registrations.table.ts      definisi tabel Drizzle
-  registrations.events.ts     event yang dipancarkan modul
-  registrations.test.ts
 ```
 
 **Aturan batas modul**

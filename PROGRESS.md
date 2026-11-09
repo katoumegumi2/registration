@@ -150,3 +150,8 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 ### 1 Nov 2026 — Halaman penjelasan untuk dosen
 
 - Ringkasan sistem, arsitektur, alur, pengujian, batasan, urutan demo, dan contoh pertanyaan. Salinan ada di `docs/penjelasan-sistem/index.html`.
+
+### 1 Nov 2026 — Struktur folder dijelaskan
+
+- Bagian Struktur folder ditambahkan ke halaman penjelasan.
+- PRD dikoreksi: file `repository`, `events`, dan `test` per modul tidak ada; query berada di `service`, event di `shared/events/bus.ts`, test di `apps/api/test`.

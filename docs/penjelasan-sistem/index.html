@@ -71,6 +71,9 @@ figcaption { font-size: .88rem; color: var(--muted); margin-top: .5rem; max-widt
 .shot { display: block; max-width: 100%; height: auto; border-radius: 1rem; border: 1px solid var(--line); }
 .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1.25rem; }
 .shots figure { margin: 0; }
+pre.tree { margin: 1rem 0; padding: 1rem 1.1rem; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; font: 400 .86rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre.tree b { font-weight: 600; color: var(--accent); }
+pre.tree i { font-style: normal; color: var(--muted); }
 .note { background: var(--warn-bg); color: var(--warn-ink); border-radius: 1rem; padding: .85rem 1.1rem; max-width: 68ch; }
 .qa { display: grid; gap: .6rem; margin-top: 1rem; }
 .qa div { background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; padding: .85rem 1.1rem; }
@@ -92,6 +95,7 @@ figcaption { font-size: .88rem; color: var(--muted); margin-top: .5rem; max-widt
       <li><a href="#perubahan">Perubahan dari spesifikasi</a></li>
       <li><a href="#pengguna">Pengguna dan hak akses</a></li>
       <li><a href="#arsitektur">Arsitektur</a></li>
+      <li><a href="#folder">Struktur folder</a></li>
       <li><a href="#data">Model data</a></li>
       <li><a href="#alur">Alur pendaftaran</a></li>
       <li><a href="#kuota">Kuota dan konkurensi</a></li>
@@ -221,6 +225,85 @@ figcaption { font-size: .88rem; color: var(--muted); margin-top: .5rem; max-widt
           <tr><td><code>registrations</code></td><td>Draft, submit, nomor registrasi, status dan riwayatnya</td></tr>
           <tr><td><code>review</code></td><td>Use case staff: tinjau, terima, tolak, waiting list, koreksi</td></tr>
           <tr><td><code>reports</code></td><td>Dashboard, export, laporan; hanya membaca</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="folder">
+      <h2>Struktur folder</h2>
+      <p>Proyek ini satu repository dengan tiga bagian: API, web, dan aturan yang dipakai bersama keduanya. Kode yang ditulis sendiri hanya sekitar 3,7 MB; selebihnya library di <code>node_modules</code>.</p>
+<pre class="tree" tabindex="0"><b>pendaftaran/</b>
+├─ <b>apps/</b>
+│  ├─ <b>api/</b>                  <i>Backend: Bun + Hono</i>
+│  │  ├─ <b>src/</b>
+│  │  │  ├─ main.ts         <i>Titik mulai server API</i>
+│  │  │  ├─ worker.ts       <i>Pengirim email dan pembersihan unggahan</i>
+│  │  │  ├─ app.ts          <i>Merakit semua route, header keamanan, /docs, /health</i>
+│  │  │  ├─ <b>modules/</b>       <i>11 modul, satu folder per domain</i>
+│  │  │  ├─ <b>shared/</b>        <i>Koneksi database, storage, kripto, event bus, helper route</i>
+│  │  │  └─ <b>scripts/</b>       <i>migrate, seed, init-storage, uji presigned</i>
+│  │  ├─ <b>drizzle/</b>          <i>File migration SQL hasil generate dari tabel</i>
+│  │  └─ <b>test/</b>             <i>50 test otomatis</i>
+│  └─ <b>web/</b>                  <i>Frontend: Vue 3 + Tailwind</i>
+│     └─ <b>src/</b>
+│        ├─ <b>features/</b>      <i>Halaman per fitur: auth, events, registrations, reports, review, settings, staff</i>
+│        ├─ <b>components/</b>    <i>Dipakai ulang: ui (tombol, dialog), form (input, unggah), data (badge, paginasi)</i>
+│        ├─ <b>composables/</b>   <i>Logika dipakai ulang: useApi, useAuth, useFileUpload, useUrlFilters</i>
+│        ├─ <b>layouts/</b>       <i>PublicLayout (menu atas), AdminLayout (sidebar)</i>
+│        ├─ router.ts       <i>Daftar alamat halaman</i>
+│        └─ styles.css      <i>Warna dan font, satu tempat</i>
+├─ <b>packages/shared/</b>        <i>Aturan bersama: status, tabel transisi, validasi NIK dan file</i>
+├─ <b>nginx/</b>                  <i>Konfigurasi pintu masuk: batas 6 MB, Host, IP klien</i>
+├─ <b>docker/</b>                 <i>Pembuatan database uji</i>
+├─ <b>docs/</b>                   <i>Halaman penjelasan ini</i>
+├─ <b>e2e/</b>                    <i>Checklist demo 20 langkah di browser</i>
+├─ Dockerfile              <i>Cara membangun image aplikasi</i>
+├─ docker-compose.yml      <i>Menjalankan nginx, api, postgres, rustfs, mailpit</i>
+├─ eslint.config.js        <i>Aturan batas antar modul</i>
+├─ package.json, bun.lock  <i>Daftar library dan versinya yang terkunci</i>
+├─ .env.example            <i>Contoh pengaturan; salinannya .env berisi rahasia dan tidak masuk git</i>
+├─ PRD — Sistem ... .md    <i>Spesifikasi</i>
+├─ PROGRESS.md             <i>Catatan pengerjaan per tahap</i>
+└─ README.md               <i>Cara instalasi, pengujian, dan persiapan presentasi</i></pre>
+
+      <h3>Isi satu modul backend</h3>
+      <p>Semua modul memakai pola yang sama, jadi cukup paham satu modul untuk membaca yang lain. Contohnya <code>modules/registrations/</code>:</p>
+      <div class="tbl"><table>
+        <thead><tr><th>File</th><th>Isi</th></tr></thead>
+        <tbody>
+          <tr><td><code>registrations.table.ts</code></td><td>Definisi tabel database milik modul</td></tr>
+          <tr><td><code>registrations.service.ts</code></td><td>Logika bisnis dan query: draft, submit, nomor registrasi, perubahan status</td></tr>
+          <tr><td><code>registrations.routes.ts</code></td><td>Alamat API, validasi input, dan hak akses</td></tr>
+          <tr><td><code>index.ts</code></td><td>Satu-satunya pintu bagi modul lain. Lint menolak import ke file lain di dalam modul</td></tr>
+        </tbody>
+      </table></div>
+      <p>Tidak semua modul punya keempat file. <code>review</code> tidak punya tabel, dan <code>reports</code> hanya membaca.</p>
+
+      <h3>Mau mengubah sesuatu, buka di mana</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Yang ingin diubah</th><th>Lokasi</th></tr></thead>
+        <tbody>
+          <tr><td>Warna dan font</td><td><code>apps/web/src/styles.css</code></td></tr>
+          <tr><td>Tampilan satu halaman</td><td><code>apps/web/src/features/&lt;fitur&gt;/</code></td></tr>
+          <tr><td>Menu sidebar atau menu atas</td><td><code>apps/web/src/layouts/</code></td></tr>
+          <tr><td>Aturan status dan validasi NIK atau file</td><td><code>packages/shared/src/index.ts</code></td></tr>
+          <tr><td>Aturan kuota dan submit</td><td><code>apps/api/src/modules/registrations/registrations.service.ts</code></td></tr>
+          <tr><td>Syarat menerima atau menolak pendaftar</td><td><code>apps/api/src/modules/review/review.service.ts</code></td></tr>
+          <tr><td>Isi email</td><td><code>apps/api/src/modules/notifications/notifications.templates.ts</code></td></tr>
+          <tr><td>Kolom tabel database</td><td><code>modules/&lt;modul&gt;/*.table.ts</code>, lalu <code>bun run db:generate</code> dan <code>db:migrate</code></td></tr>
+          <tr><td>Data awal demo</td><td><code>apps/api/src/scripts/seed.ts</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Folder yang tidak perlu dibuka</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Folder atau file</th><th>Isi</th><th>Masuk git?</th></tr></thead>
+        <tbody>
+          <tr><td><code>node_modules/</code></td><td>Library pihak ketiga, dibuat ulang dengan <code>bun install</code></td><td>Tidak</td></tr>
+          <tr><td><code>apps/web/dist/</code></td><td>Hasil build frontend</td><td>Tidak</td></tr>
+          <tr><td><code>.env</code></td><td>Password dan kunci rahasia. Jangan dibagikan</td><td>Tidak</td></tr>
+          <tr><td><code>.git/</code></td><td>Riwayat perubahan kode</td><td>Tidak</td></tr>
+          <tr><td><code>.claude/</code></td><td>Folder kerja alat bantu pengembangan, bukan bagian aplikasi</td><td>Tidak</td></tr>
         </tbody>
       </table></div>
     </section>
