@@ -5,6 +5,12 @@ upstream api_upstream {
 
 resolver 127.0.0.11 valid=10s ipv6=off;
 
+# Bila trafik publik lewat reverse proxy (edge), ambil IP asli pengunjung dari
+# X-Real-IP yang diset edge, supaya $remote_addr (dan X-Real-IP ke API) bukan IP edge.
+# Alamat edge diisi lewat TRUSTED_PROXY di .env.
+set_real_ip_from ${TRUSTED_PROXY};
+real_ip_header X-Real-IP;
+
 server {
     listen 80;
     server_name _;
