@@ -78,3 +78,11 @@ Bila RustFS bermasalah, set `STORAGE_DRIVER=local` di `.env` lalu jalankan ulang
 
 - Bekukan versi RustFS: isi `RUSTFS_TAG` di `.env` dengan tag versi yang sudah diuji, jangan `latest`.
 - Buka aplikasi persis di alamat `APP_URL`. Alamat lain membuat unggahan gagal, karena tanda tangan URL mengikat host dan port.
+
+## Referensi desain
+
+Tampilan landing page (`apps/web/src/features/events/LandingPage.vue`) dan navigasi publik (`apps/web/src/layouts/PublicLayout.vue`) mengikuti referensi desain landing page "Creatix" berikut:
+
+- https://id.pinterest.com/pin/774408098472802981/
+
+Yang diambil dari referensi: kartu hero putih di atas latar gelap, navigasi berbentuk pil hitam, baris statistik, daftar bernomor dengan label vertikal, teks besar bersilang, dan footer lime. Isinya tetap data event sungguhan dari API dan warna mengikuti token di `apps/web/src/styles.css`. Foto orang dari referensi tidak dipakai; posisinya diganti kartu event yang sedang dibuka.

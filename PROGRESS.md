@@ -155,3 +155,10 @@ Sebelum presentasi: isi `RUSTFS_TAG` dengan tag versi yang sudah diuji.
 
 - Bagian Struktur folder ditambahkan ke halaman penjelasan.
 - PRD dikoreksi: file `repository`, `events`, dan `test` per modul tidak ada; query berada di `service`, event di `shared/events/bus.ts`, test di `apps/api/test`.
+
+### 9 Nov 2026 — Landing page mengikuti referensi desain
+
+- Landing page dan navigasi publik didesain ulang mengikuti referensi dari pengguna (Pinterest, link di README bagian Referensi desain): hero kartu putih di atas latar gelap, nav pil hitam, statistik, langkah bernomor yang bisa dipilih, teks besar, footer lime.
+- Data tetap dari API. Statistik: event dibuka, jenis event, total sisa kuota event berkuota terbatas, 4 langkah.
+- Nav pil hitam juga dipakai halaman publik lain (daftar, detail event, Pendaftaran Saya). Footer lama tetap untuk halaman selain landing.
+- Dicek di Chromium 1440, 390, dan 360 px: tidak ada scroll ke samping.
